@@ -66,6 +66,8 @@ export interface CoolConfig {
     cos?: COSConfig;
     /** qiniu */
     qiniu?: QINIUConfig;
+    /** aws */
+    aws: AWSConfig;
   };
   /** IOT 配置 */
   iot?: CoolIotConfig;
@@ -106,6 +108,8 @@ export enum CLOUDTYPE {
   COS = "cos",
   /** 七牛云存储 */
   QINIU = "qiniu",
+  /** AWS S3 */
+  AWS = "aws",
 }
 
 /**
@@ -130,6 +134,8 @@ export interface CoolFileConfig {
   cos: COSConfig;
   /** 七牛云 配置 */
   qiniu: QINIUConfig;
+  /** AWS s3 配置 */
+  aws: AWSConfig;
   /** 文件前缀 */
   domain: string;
 }
@@ -193,6 +199,25 @@ export interface QINIUConfig {
   uploadUrl?: string;
   /** 上传fileKey */
   fileKey?: string;
+}
+
+export interface AWSConfig {
+  /** accessKeyId */
+  accessKeyId: string;
+  /** secretAccessKey */
+  secretAccessKey: string;
+  /** bucket */
+  bucket: string;
+  /** region */
+  region: string;
+  /** fields */
+  fields?: any;
+  /** conditions */
+  conditions?: any[];
+  /** expires */
+  expires?: number
+  /** publicDomain */
+  publicDomain?: string;
 }
 
 /**

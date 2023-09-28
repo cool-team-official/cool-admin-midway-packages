@@ -300,8 +300,7 @@ export abstract class BaseService {
     await this.modifyBefore(param, "update");
     if (!param.id && !(param instanceof Array))
       throw new CoolValidateException(ERRINFO.NOID);
-    await this.addOrUpdate(param);
-    await this.modifyAfter(param, "update");
+    await this.addOrUpdate(param, 'update');
   }
 
   /**
@@ -311,8 +310,7 @@ export abstract class BaseService {
   async add(param: any | any[]): Promise<Object> {
     if (!this.entity) throw new CoolValidateException(ERRINFO.NOENTITY);
     await this.modifyBefore(param, "add");
-    await this.addOrUpdate(param);
-    await this.modifyAfter(param, "add");
+    await this.addOrUpdate(param, 'add');
     return {
       id:
         param instanceof Array
@@ -329,17 +327,28 @@ export abstract class BaseService {
    * 新增|修改
    * @param param 数据
    */
-  async addOrUpdate(param: any | any[]) {
+  async addOrUpdate(param: any | any[], type: 'add' | 'update' = 'add') {
     if (!this.entity) throw new CoolValidateException(ERRINFO.NOENTITY);
     delete param.createTime;
-    if (param.id) {
-      param.updateTime = new Date();
-      await this.entity.save(param);
-    } else {
-      param.createTime = new Date();
-      param.updateTime = new Date();
-      await this.entity.save(param);
+    // 判断是否是批量操作
+    if (param instanceof Array) {
+        param.forEach((item) => {
+          item.updateTime = new Date();
+          item.createTime = new Date();
+        });
+        await this.entity.save(param);
+    } else{
+      if (type == 'update') {
+        param.updateTime = new Date();
+        await this.entity.update(param.id, param);
+      }
+      if(type =='add'){
+        param.createTime = new Date();
+        param.updateTime = new Date();
+        await this.entity.insert(param);
+      }
     }
+    await this.modifyAfter(param, type);
   }
 
   /**
@@ -502,7 +511,8 @@ export abstract class BaseService {
     }
     const sqls = find.getSql().split("FROM");
     sqlArr.push("FROM");
-    sqlArr.push(sqls[1]);
+    // 取sqls的最后一个
+    sqlArr.push(sqls[sqls.length - 1]);
     return sqlArr.join(" ");
   }
 

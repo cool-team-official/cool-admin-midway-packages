@@ -1,6 +1,6 @@
 {
   "name": "@cool-midway/cloud",
-  "version": "7.0.0",
+  "version": "7.0.0-beta1",
   "description": "",
   "main": "index.js",
   "typings": "index.d.ts",
@@ -23,7 +23,7 @@
     "url": "https://cool-js.com"
   },
   "devDependencies": {
-    "@cool-midway/core": "^6.0.0",
+    "@cool-midway/core": "7.0.0-beta2",
     "@midwayjs/cli": "^2.0.0",
     "@midwayjs/core": "^3.0.0",
     "@midwayjs/decorator": "^3.0.0",

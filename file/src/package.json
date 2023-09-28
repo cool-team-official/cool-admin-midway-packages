@@ -1,6 +1,6 @@
 {
   "name": "@cool-midway/file",
-  "version": "6.0.2",
+  "version": "7.0.0-beta2",
   "description": "",
   "main": "index.js",
   "typings": "index.d.ts",
@@ -47,6 +47,8 @@
     "cos-nodejs-sdk-v5": "^2.11.19",
     "download": "^8.0.0",
     "qcloud-cos-sts": "^3.1.0",
-    "qiniu": "^7.8.0"
+    "qiniu": "^7.8.0",
+    "@aws-sdk/client-s3": "^3.414.0",
+    "@aws-sdk/s3-presigned-post": "^3.414.0"
   }
 }

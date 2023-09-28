@@ -21,6 +21,8 @@ import * as STS from 'qcloud-cos-sts';
 import * as download from 'download';
 import * as COS from 'cos-nodejs-sdk-v5';
 import * as QINIU from 'qiniu';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 
 /**
  * 文件上传
@@ -34,7 +36,7 @@ export class CoolFile {
   @Logger()
   coreLogger: ILogger;
 
-  client: OSS & COS & QINIU.auth.digest.Mac;
+  client: OSS & COS & QINIU.auth.digest.Mac & S3Client;
 
   @App()
   app: IMidwayApplication;
@@ -53,7 +55,7 @@ export class CoolFile {
     if (config) {
       this.config = config;
     }
-    const { mode, oss, cos, qiniu } = this.config;
+    const { mode, oss, cos, qiniu, aws } = this.config;
     if (mode == MODETYPE.CLOUD) {
       if (oss) {
         const { accessKeyId, accessKeySecret, bucket, endpoint } = oss;
@@ -75,6 +77,13 @@ export class CoolFile {
         const { accessKeyId, accessKeySecret } = qiniu;
         this.client = new QINIU.auth.digest.Mac(accessKeyId, accessKeySecret);
       }
+      if (aws) {
+        const { accessKeyId, secretAccessKey, region } = aws;
+        this.client = new S3Client({
+          region,
+          credentials: { accessKeyId, secretAccessKey },
+        });
+      }
     }
   }
 
@@ -83,7 +92,7 @@ export class CoolFile {
    * @returns 上传模式
    */
   async getMode(): Promise<Mode> {
-    const { mode, oss, cos, qiniu } = this.config;
+    const { mode, oss, cos, qiniu, aws } = this.config;
     if (mode == MODETYPE.LOCAL) {
       return {
         mode: MODETYPE.LOCAL,
@@ -108,13 +117,19 @@ export class CoolFile {
         type: CLOUDTYPE.QINIU,
       };
     }
+    if (aws) {
+      return {
+        mode: MODETYPE.CLOUD,
+        type: CLOUDTYPE.AWS,
+      };
+    }
   }
 
   /**
    * 获得原始操作对象
    * @returns
    */
-  getMetaFileObj(): OSS & COS & QINIU.auth.digest.Mac {
+  getMetaFileObj(): OSS & COS & QINIU.auth.digest.Mac & S3Client {
     return this.client;
   }
 
@@ -124,7 +139,7 @@ export class CoolFile {
    * @param fileName 文件名
    */
   async downAndUpload(url: string, fileName?: string) {
-    const { mode, oss, cos, qiniu, domain } = this.config;
+    const { mode, oss, cos, qiniu, aws, domain } = this.config;
     let extend = '';
     if (url.includes('.')) {
       const urlArr = url.split('.');
@@ -164,6 +179,20 @@ export class CoolFile {
         });
         return cos.publicDomain + '/' + name;
       }
+      if (aws) {
+        const { bucket, fields, region, publicDomain } = aws;
+        const uploadParams = {
+          Bucket: bucket,
+          Key: name,
+          Body: data,
+          ACL: fields ? fields.acl : 'public-read',
+        };
+        const command = new PutObjectCommand(uploadParams);
+        await this.client.send(command);
+        return publicDomain
+          ? `${publicDomain}/${name}`
+          : `https://${bucket}.s3.${region}.amazonaws.com/${name}`;
+      }
       if (qiniu) {
         let uploadToken = (await this.qiniu())['token'];
         const formUploader = new QINIU.form_up.FormUploader();
@@ -196,12 +225,12 @@ export class CoolFile {
 
   /**
    * 指定Key(路径)上传
-   * @param file
+   * @param filePath 文件路径
    * @param key 路径一致会覆盖源文件
    */
-  async uploadWithKey(file, key) {
-    const { mode, oss, cos, qiniu } = this.config;
-    const data = fs.readFileSync(file.data);
+  async uploadWithKey(filePath, key) {
+    const { mode, oss, cos, qiniu, aws } = this.config;
+    const data = fs.readFileSync(filePath);
     if (mode == MODETYPE.LOCAL) {
       fs.writeFileSync(path.join(this.app.getBaseDir(), '..', key), data);
       return this.config.domain + key;
@@ -242,6 +271,20 @@ export class CoolFile {
           );
         });
       }
+      if (aws) {
+        const { bucket, fields, region, publicDomain } = aws;
+        const uploadParams = {
+          Bucket: bucket,
+          Key: key,
+          Body: data,
+          ACL: fields ? fields.acl : 'public-read',
+        };
+        const command = new PutObjectCommand(uploadParams);
+        await this.client.send(command);
+        return publicDomain
+          ? `${publicDomain}/${key}`
+          : `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
+      }
     }
   }
 
@@ -251,7 +294,7 @@ export class CoolFile {
    * @param key 文件路径
    */
   async upload(ctx) {
-    const { mode, oss, cos, qiniu } = this.config;
+    const { mode, oss, cos, qiniu, aws } = this.config;
     if (mode == MODETYPE.LOCAL) {
       return await this.local(ctx);
     }
@@ -265,7 +308,40 @@ export class CoolFile {
       if (qiniu) {
         return await this.qiniu(ctx);
       }
+      if (aws) {
+        return await this.aws(ctx);
+      }
     }
+  }
+
+  /**
+   * aws 文件上传
+   * @param ctx
+   */
+  private async aws(ctx) {
+    let {
+      bucket,
+      fields = {},
+      conditions = [],
+      expires = 3600,
+    } = this.config.aws;
+    const { key } = ctx.request.body;
+    if (!conditions) {
+      conditions = [{ acl: 'public-read' }, { bucket }];
+    }
+    if (!fields) {
+      fields = {
+        acl: 'public-read',
+      };
+    }
+    const result = await createPresignedPost(this.client, {
+      Bucket: bucket,
+      Key: key,
+      Conditions: conditions,
+      Fields: fields,
+      Expires: expires,
+    });
+    return result;
   }
 
   /**

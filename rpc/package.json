@@ -1,6 +1,6 @@
 {
   "name": "@cool-midway/rpc",
-  "version": "6.0.1",
+  "version": "7.0.0-beta1",
   "description": "cool-js.com rpc 微服务",
   "main": "dist/index.js",
   "typings": "index.d.ts",
@@ -23,7 +23,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@cool-midway/core": "^6.0.0",
+    "@cool-midway/core": "7.0.0-beta3",
     "@midwayjs/cli": "^2.0.9",
     "@midwayjs/core": "^3.9.0",
     "@midwayjs/decorator": "^3.9.0",
