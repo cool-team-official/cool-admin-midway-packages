@@ -78,10 +78,12 @@ export class CoolFile {
         this.client = new QINIU.auth.digest.Mac(accessKeyId, accessKeySecret);
       }
       if (aws) {
-        const { accessKeyId, secretAccessKey, region } = aws;
+        const { accessKeyId, secretAccessKey, region, publicDomain } = aws;
         this.client = new S3Client({
           region,
           credentials: { accessKeyId, secretAccessKey },
+          // 支持自定义s3服务，如minio等
+          endpoint: publicDomain ? publicDomain : `https://s3.${region}.amazonaws.com`,
         });
       }
     }
