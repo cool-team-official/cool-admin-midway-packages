@@ -83,7 +83,9 @@ export class CoolFile {
           region,
           credentials: { accessKeyId, secretAccessKey },
           // 支持自定义s3服务，如minio等
-          endpoint: publicDomain ? publicDomain : `https://s3.${region}.amazonaws.com`,
+          endpoint: publicDomain
+            ? publicDomain
+            : `https://s3.${region}.amazonaws.com`,
         });
       }
     }
