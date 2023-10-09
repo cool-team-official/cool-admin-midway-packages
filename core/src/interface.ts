@@ -20,7 +20,7 @@ export interface ModuleConfig {
 
 export interface CoolConfig {
   /** 短信 */
-  sms: CoolSmsConfig,
+  sms?: CoolSmsConfig,
   /** 是否自动导入数据库 */
   initDB?: boolean;
   /** 是否自动导入模块菜单 */
