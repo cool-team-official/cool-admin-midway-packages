@@ -458,8 +458,14 @@ export abstract class BaseService {
       }
       // 字段全匹配
       if (!_.isEmpty(option.fieldEq)) {
-        for (const key of option.fieldEq) {
+        for (let key of option.fieldEq) {
           const c = {};
+          // 如果key有包含.的情况下操作
+          if(typeof key === "string" && key.includes('.')){
+            const keys = key.split('.');
+            const lastKey = keys.pop();
+            key = {requestParam: lastKey, column: keys.join('.')};
+          }
           // 单表字段无别名的情况下操作
           if (typeof key === "string") {
             if (query[key] || (query[key] == 0 && query[key] == "")) {
