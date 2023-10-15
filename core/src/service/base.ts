@@ -464,7 +464,7 @@ export abstract class BaseService {
           if(typeof key === "string" && key.includes('.')){
             const keys = key.split('.');
             const lastKey = keys.pop();
-            key = {requestParam: lastKey, column: keys.join('.')};
+            key = {requestParam: lastKey, column: key};
           }
           // 单表字段无别名的情况下操作
           if (typeof key === "string") {
