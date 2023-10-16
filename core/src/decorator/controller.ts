@@ -69,7 +69,7 @@ export interface QueryOp {
   // 查询字段
   select?: string[];
   // 字段相等
-  fieldEq?: string[] | FieldEq[];
+  fieldEq?: string[] | FieldEq[] | (string | FieldEq)[];
   // 添加排序条件
   addOrderBy?: {};
   // 关联配置
