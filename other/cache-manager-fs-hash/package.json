@@ -1,6 +1,6 @@
 {
   "name": "@cool-midway/cache-manager-fs-hash",
-  "version": "7.0.0-beta1",
+  "version": "7.0.0",
   "main": "index.js",
   "engines": {
     "node": ">=8.0.0"
