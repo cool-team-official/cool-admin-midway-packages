@@ -333,7 +333,7 @@ export class CoolFile {
     if (!conditions) {
       conditions = [{ acl: 'public-read' }, { bucket }];
     }
-    if (!fields) {
+    if (_.isEmpty(fields)) {
       fields = {
         acl: 'public-read',
       };

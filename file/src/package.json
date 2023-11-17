@@ -1,6 +1,6 @@
 {
   "name": "@cool-midway/file",
-  "version": "7.0.0",
+  "version": "7.0.2",
   "description": "",
   "main": "index.js",
   "typings": "index.d.ts",
