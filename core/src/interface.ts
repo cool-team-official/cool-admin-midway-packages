@@ -23,6 +23,8 @@ export interface CoolConfig {
   sms?: CoolSmsConfig,
   /** 是否自动导入数据库 */
   initDB?: boolean;
+  /** Eps */
+  eps?: boolean;
   /** 是否自动导入模块菜单 */
   initMenu?: boolean;
   // 实体配置

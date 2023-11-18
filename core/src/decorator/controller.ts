@@ -97,25 +97,35 @@ export interface ControllerOption {
   };
 }
 
+// 路由配置
+export interface RouterOptions {
+  sensitive?: boolean;
+  middleware?: MiddlewareParamArray;
+  description?: string;
+  tagName?: string;
+  ignoreGlobalPrefix?: boolean;
+} 
+
 // COOL的装饰器
 export function CoolController(
-  curdOption?: CurdOption | string,
-  routerOptions: {
-    sensitive?: boolean;
-    middleware?: MiddlewareParamArray;
-    description?: string;
-    tagName?: string;
-    ignoreGlobalPrefix?: boolean;
-  } = { middleware: [], sensitive: true }
+  curdOption?: CurdOption | string | RouterOptions,
+  routerOptions: RouterOptions = { middleware: [], sensitive: true }
 ): ClassDecorator {
   return (target: any) => {
     // 将装饰的类，绑定到该装饰器，用于后续能获取到 class
     saveModule(CONTROLLER_KEY, target);
     let prefix;
-    if (typeof curdOption === "string") {
-      prefix = curdOption;
-    } else {
-      prefix = curdOption?.prefix || "";
+    if(curdOption){
+      // 判断 curdOption 的类型
+      if (typeof curdOption === "string") {
+        prefix = curdOption;
+      } else if (curdOption && 'api' in curdOption) {
+        // curdOption 是 CurdOption 类型
+        prefix = curdOption.prefix || "";
+      } else {
+        // curdOption 是 RouterOptions 类型 合并到 routerOptions
+        routerOptions = { ...curdOption , ...routerOptions, };
+      }
     }
     // 如果不存在路由前缀，那么自动根据当前文件夹路径
     location.scriptPath(target).then(async (res: any) => {

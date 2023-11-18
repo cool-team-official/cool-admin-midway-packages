@@ -55,12 +55,9 @@ export class CoolConfiguration implements ILifeCycle {
     this.app.useFilter([CoolExceptionFilter]);
     // 装饰器
     await container.getAsync(CoolDecorator);
-
-    if (this.app.getEnv() == "local") {
-      // 实体与路径
-      const eps: CoolEps = await container.getAsync(CoolEps);
-      eps.init();
-    }
+    // 实体与路径
+    const eps: CoolEps = await container.getAsync(CoolEps);
+    eps.init();
     // 缓存设置为全局
     global["COOL-CACHE"] = await container.getAsync(CacheManager);
     // 清除 location

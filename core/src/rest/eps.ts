@@ -7,8 +7,10 @@ import {
   ScopeEnum,
 } from "@midwayjs/decorator";
 import * as _ from "lodash";
-import { Inject, MidwayWebRouterService } from "@midwayjs/core";
+import { Config, Inject, MidwayWebRouterService } from "@midwayjs/core";
 import { TypeORMDataSourceManager } from "@midwayjs/typeorm";
+import { CoolUrlTagData } from "../tag/data";
+import { TagTypes } from "../decorator/tag";
 
 /**
  * 实体路径
@@ -26,18 +28,38 @@ export class CoolEps {
   @Inject()
   typeORMDataSourceManager: TypeORMDataSourceManager;
 
+  @Config('cool.eps')
+  epsConfig: boolean;
+
+  @Config('module')
+  moduleConfig: any;
+
+  @Inject()
+  coolUrlTagData: CoolUrlTagData;
+
   // @Init()
   async init() {
+    if(!this.epsConfig) return;
     const entitys = await this.entity();
     const controllers = await this.controller();
     const routers = await this.router();
     const adminArr = [];
     const appArr = [];
     for (const controller of controllers) {
-      const { prefix, module, curdOption } = controller;
+      const { prefix, module, moduleConfig, curdOption, routerOptions } = controller;
       const name = curdOption?.entity?.name;
       (_.startsWith(prefix, "/admin/") ? adminArr : appArr).push({
         module,
+        info: {
+         module: {
+          name: moduleConfig?.name,
+          description: moduleConfig?.description,
+         },
+         type: {
+          name: prefix.split("/").pop(),
+          description: routerOptions?.description || "" ,
+         },
+        },
         api: routers[prefix],
         name,
         columns: entitys[name] || [],
@@ -56,9 +78,10 @@ export class CoolEps {
     const result = [];
     const controllers = listModule(CONTROLLER_KEY);
     for (const controller of controllers) {
-      result.push(getClassMetadata(CONTROLLER_KEY, controller));
+      const data = getClassMetadata(CONTROLLER_KEY, controller);
+      data.moduleConfig = this.moduleConfig[data.module];
+      result.push(data);
     }
-
     return result;
   }
 
@@ -67,6 +90,10 @@ export class CoolEps {
    * @returns
    */
   async router() {
+    let ignoreUrls: string[] = this.coolUrlTagData.byKey(TagTypes.IGNORE_TOKEN);
+    if(_.isEmpty(ignoreUrls)){
+      ignoreUrls = [];
+    }
     return _.groupBy(
       (await await this.midwayWebRouterService.getFlattenRouterTable()).map(
         (item) => {
@@ -77,6 +104,7 @@ export class CoolEps {
             dts: {},
             tag: "",
             prefix: item.prefix,
+            ignoreToken: ignoreUrls.includes(item.prefix+item.url),
           };
         }
       ),

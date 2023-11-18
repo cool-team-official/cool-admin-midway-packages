@@ -55,9 +55,12 @@ export class CoolUrlTagData {
   /**
    * 根据键获得
    * @param key
+   * @param type
    * @returns
    */
-  byKey(key: string): string[] {
-    return this.data[key];
+  byKey(key: string, type?: 'app' | 'admin'): string[] {
+    return this.data[key].filter(e => {
+        return type? _.startsWith(e, `/${type}/`): true;
+    });
   }
 }
