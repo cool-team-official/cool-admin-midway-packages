@@ -22,6 +22,8 @@ export class CoolEps {
 
   app = {};
 
+  module = {};
+
   @Inject()
   midwayWebRouterService: MidwayWebRouterService;
 
@@ -43,18 +45,15 @@ export class CoolEps {
     const entitys = await this.entity();
     const controllers = await this.controller();
     const routers = await this.router();
+    await this.modules();
     const adminArr = [];
     const appArr = [];
     for (const controller of controllers) {
-      const { prefix, module, moduleConfig, curdOption, routerOptions } = controller;
+      const { prefix, module, curdOption, routerOptions } = controller;
       const name = curdOption?.entity?.name;
       (_.startsWith(prefix, "/admin/") ? adminArr : appArr).push({
         module,
         info: {
-         module: {
-          name: moduleConfig?.name,
-          description: moduleConfig?.description,
-         },
          type: {
           name: prefix.split("/").pop(),
           description: routerOptions?.description || "" ,
@@ -71,6 +70,21 @@ export class CoolEps {
   }
 
   /**
+   * 模块信息
+   * @param module 
+   */
+  async modules(module?: string) {
+    for(const key in this.moduleConfig){
+      const config = this.moduleConfig[key];
+      this.module[key] = {
+        name: config.name,
+        description: config.description,
+      }
+    }
+    return module? this.module[module]: this.module;
+  }
+
+  /**
    * 所有controller
    * @returns
    */
@@ -78,9 +92,7 @@ export class CoolEps {
     const result = [];
     const controllers = listModule(CONTROLLER_KEY);
     for (const controller of controllers) {
-      const data = getClassMetadata(CONTROLLER_KEY, controller);
-      data.moduleConfig = this.moduleConfig[data.module];
-      result.push(data);
+      result.push(getClassMetadata(CONTROLLER_KEY, controller));
     }
     return result;
   }
