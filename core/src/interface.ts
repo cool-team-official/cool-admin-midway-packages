@@ -220,6 +220,8 @@ export interface AWSConfig {
   expires?: number
   /** publicDomain */
   publicDomain?: string;
+  /** forcePathStyle */
+  forcePathStyle?: boolean;
 }
 
 /**
