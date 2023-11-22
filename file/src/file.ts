@@ -78,7 +78,7 @@ export class CoolFile {
         this.client = new QINIU.auth.digest.Mac(accessKeyId, accessKeySecret);
       }
       if (aws) {
-        const { accessKeyId, secretAccessKey, region, publicDomain } = aws;
+        const { accessKeyId, secretAccessKey, region, publicDomain, forcePathStyle } = aws;
         this.client = new S3Client({
           region,
           credentials: { accessKeyId, secretAccessKey },
@@ -86,6 +86,8 @@ export class CoolFile {
           endpoint: publicDomain
             ? publicDomain
             : `https://s3.${region}.amazonaws.com`,
+          // minio 使用域名时，forcePathStyle为true时，不增加二级域名，而是 xx.com/bucket的形式
+          forcePathStyle: forcePathStyle ? forcePathStyle : false,
         });
       }
     }
