@@ -1,6 +1,6 @@
 {
   "name": "@cool-midway/sms",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "description": "cool-js.com 短信",
   "main": "index.js",
   "typings": "index.d.ts",
@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "@alicloud/pop-core": "^1.7.13",
+    "@aws-sdk/client-sns": "^3.465.0",
     "tencentcloud-sdk-nodejs": "^4.0.607"
   }
 }

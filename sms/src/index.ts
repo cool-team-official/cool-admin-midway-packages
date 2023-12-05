@@ -5,5 +5,6 @@ export * from './interface';
 export * from './ali';
 export * from './yp';
 export * from './tx';
+export * from './aws';
 
 export * from './sms';

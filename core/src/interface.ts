@@ -344,11 +344,34 @@ export interface CoolSmsConfig {
   /**
    * 腾讯云短信配置
    */
-  tx: CoolTxConfig;
+  tx: CoolSmsTxConfig;
   /**
    * 云片短信配置
    */
-  yp: CoolYpConfig;
+  yp: CoolSmsYpConfig;
+  /**
+   * aws短信配置
+   */
+  aws: CoolSmsAwsConfig;
+}
+
+export interface CoolSmsAwsConfig {
+  /**
+   * 区域
+   */
+  region: string;
+  /**
+   * accessKeyId
+   */
+  accessKeyId: string;
+  /**
+   * secretAccessKey
+   */
+  secretAccessKey: string;
+  /**
+   * 扩展配置
+   */
+  extend?: any;
 }
 
 /**
@@ -376,7 +399,7 @@ export interface CoolSmsAliConfig {
 /**
  * 腾讯云配置
  */
-export interface CoolTxConfig {
+export interface CoolSmsTxConfig {
   /**
    * 应用ID
    */
@@ -402,7 +425,7 @@ export interface CoolTxConfig {
 /**
  * 云片短信配置
  */
-export interface CoolYpConfig {
+export interface CoolSmsYpConfig {
   /**
    * 云片apikey
    */
