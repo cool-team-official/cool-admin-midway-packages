@@ -138,6 +138,7 @@ export class CoolEps {
       for (const entityMetadata of entityMetadatas) {
         const commColums = [];
         let columns = entityMetadata.columns;
+        if(entityMetadata.tableType != 'regular') continue;
         columns = _.filter(
           columns.map((e) => {
             return {

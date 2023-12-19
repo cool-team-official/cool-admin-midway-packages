@@ -338,14 +338,15 @@ export abstract class BaseService {
         });
         await this.entity.save(param);
     } else{
+      const upsert = this._coolConfig.crud?.upsert || 'normal';
       if (type == 'update') {
         param.updateTime = new Date();
-        await this.entity.update(param.id, param);
+        upsert == 'normal'? await this.entity.update(param.id, param): await this.entity.save(param);
       }
       if(type =='add'){
         param.createTime = new Date();
         param.updateTime = new Date();
-        await this.entity.insert(param);
+        upsert == 'normal'? await this.entity.insert(param): await this.entity.save(param);
       }
     }
     await this.modifyAfter(param, type);

@@ -37,6 +37,8 @@ export interface CoolConfig {
     softDelete: boolean;
     /** 分页查询每页条数 */
     pageSize: number;
+    /** 插入方式 */
+    upsert : 'normal' | 'save'
     // 多租户
     // tenant: boolean;
   };
