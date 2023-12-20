@@ -340,6 +340,13 @@ export abstract class BaseService {
     } else{
       const upsert = this._coolConfig.crud?.upsert || 'normal';
       if (type == 'update') {
+        if(upsert == 'save') {
+          const info = await this.entity.findOneBy({id: param.id})
+          param = {
+            ...info,
+            ...param
+          }
+        }
         param.updateTime = new Date();
         upsert == 'normal'? await this.entity.update(param.id, param): await this.entity.save(param);
       }
