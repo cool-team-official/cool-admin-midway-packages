@@ -78,7 +78,13 @@ export class CoolFile {
         this.client = new QINIU.auth.digest.Mac(accessKeyId, accessKeySecret);
       }
       if (aws) {
-        const { accessKeyId, secretAccessKey, region, publicDomain, forcePathStyle } = aws;
+        const {
+          accessKeyId,
+          secretAccessKey,
+          region,
+          publicDomain,
+          forcePathStyle,
+        } = aws;
         this.client = new S3Client({
           region,
           credentials: { accessKeyId, secretAccessKey },
@@ -173,7 +179,8 @@ export class CoolFile {
     if (isCloud) {
       if (oss) {
         const ossClient: OSS = this.getMetaFileObj();
-        return (await ossClient.put(name, data)).url;
+        const { url } = await ossClient.put(name, data);
+        return oss.publicDomain ? `${oss.publicDomain}/${name}` : url;
       }
       if (cos) {
         const cosClient: COS = this.getMetaFileObj();
@@ -244,7 +251,8 @@ export class CoolFile {
     if (mode == MODETYPE.CLOUD) {
       if (oss) {
         const ossClient: OSS = this.getMetaFileObj();
-        return (await ossClient.put(key, data)).url;
+        const { url } = await ossClient.put(key, data);
+        return oss.publicDomain ? `${oss.publicDomain}/${key}` : url;
       }
       if (cos) {
         const cosClient: COS = this.getMetaFileObj();
@@ -391,6 +399,7 @@ export class CoolFile {
       expAfter = 300000,
       maxSize = 200 * 1024 * 1024,
       host,
+      publicDomain,
     } = this.config.oss;
     const oss = {
       bucket,
@@ -420,6 +429,7 @@ export class CoolFile {
       signature,
       policy,
       host: newHost,
+      publicDomain,
       OSSAccessKeyId: accessKeyId,
       success_action_status: 200,
     };
