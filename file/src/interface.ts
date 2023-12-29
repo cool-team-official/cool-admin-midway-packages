@@ -68,7 +68,7 @@ export interface OSSConfig {
   // host
   host?: string;
   // 阿里云oss的公网访问地址
-  publicDomain: string;
+  publicDomain?: string;
 }
 
 /**
