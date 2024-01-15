@@ -27,6 +27,8 @@ export class CoolModuleMenu {
     @Inject()
     coolEventManager: CoolEventManager;
 
+    datas = {};
+
     async init() {
         // 是否需要导入
         if (this.coolConfig.initMenu) {
@@ -34,17 +36,19 @@ export class CoolModuleMenu {
           const importLockPath = path.join(
             `${this.app.getBaseDir()}`,
             "..",
-            "lock"
+            "lock",
+            'menu'
           );
           if (!fs.existsSync(importLockPath)) {
-            fs.mkdirSync(importLockPath);
+            fs.mkdirSync(importLockPath, { recursive: true });
           }
             for (const module of modules) {
               const lockPath = path.join(importLockPath, module + ".menu.lock");
               if (!fs.existsSync(lockPath)) {
-                await this.importMenu(module, lockPath);
+                 await this.importMenu(module, lockPath);
               }
             }
+            this.coolEventManager.emit("onMenuImport", this.datas);
             this.coolEventManager.emit("onMenuInit", {});
         }
       }
@@ -63,7 +67,8 @@ export class CoolModuleMenu {
         if (fs.existsSync(menuPath)) {
             const data = fs.readFileSync(menuPath);
             try {
-                this.coolEventManager.emit("onMenuImport", module, JSON.parse(data.toString()));
+                // this.coolEventManager.emit("onMenuImport", module, JSON.parse(data.toString()));
+                this.datas[module] = JSON.parse(data.toString());
                 fs.writeFileSync(lockPath, data);
             } catch (error) {
                 this.coreLogger.error(error);

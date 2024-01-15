@@ -14,6 +14,9 @@ export * from "./entity/mongo";
 
 // service
 export * from "./service/base";
+export * from "./service/mysql";
+export * from "./service/postgres";
+export * from "./service/sqlite";
 
 // controller
 export * from "./controller/base";

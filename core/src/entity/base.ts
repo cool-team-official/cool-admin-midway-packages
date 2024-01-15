@@ -13,7 +13,6 @@ export abstract class BaseEntity extends CoolBaseEntity {
   // 默认自增
   @PrimaryGeneratedColumn("increment", {
     comment: "ID",
-    // type: "bigint",
   })
   id: number;
 
