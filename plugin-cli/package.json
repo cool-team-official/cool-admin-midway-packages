@@ -1,0 +1,33 @@
+{
+  "name": "@cool-midway/plugin-cli",
+  "version": "7.0.0-beta4",
+  "description": "cool-admin midway plugin",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "cool",
+    "cool-admin",
+    "cooljs"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://cool-js.com"
+  },
+  "bin": {
+    "cool-plugin-cli": "scripts/index.js"
+  },
+  "author": "COOL",
+  "readme": "README.md",
+  "license": "MIT",
+  "dependencies": {
+    "@midwayjs/core": "^3.14.0",
+    "archiver": "^6.0.1",
+    "esbuild": "^0.19.11",
+    "esbuild-plugin-copy": "^2.1.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
