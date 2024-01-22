@@ -1,4 +1,4 @@
-import { IMidwayApplication } from '@midwayjs/core';
+import { IMidwayApplication } from "@midwayjs/core";
 import {
   ALL,
   App,
@@ -7,11 +7,11 @@ import {
   Provide,
   Scope,
   ScopeEnum,
-} from '@midwayjs/decorator';
-import * as fs from 'fs';
-import { CoolCoreException } from '../exception/core';
-import { ModuleConfig } from '../interface';
-import * as _ from 'lodash';
+} from "@midwayjs/decorator";
+import * as fs from "fs";
+import { CoolCoreException } from "../exception/core";
+import { ModuleConfig } from "../interface";
+import * as _ from "lodash";
 
 /**
  * 模块配置
@@ -35,8 +35,8 @@ export class CoolModuleConfig {
     if (!fs.existsSync(moduleBasePath)) {
       return;
     }
-    if (!this.allConfig['module']) {
-      this.allConfig['module'] = {};
+    if (!this.allConfig["module"]) {
+      this.allConfig["module"] = {};
     }
     // 全局中间件
     const globalMiddlewareArr = [];
@@ -45,7 +45,7 @@ export class CoolModuleConfig {
       const dirStats = fs.statSync(modulePath);
       if (dirStats.isDirectory()) {
         const configPath = `${modulePath}/config.${
-          this.app.getEnv() == 'local' ? 'ts' : 'js'
+          this.app.getEnv() == "local" ? "ts" : "js"
         }`;
         if (fs.existsSync(configPath)) {
           const moduleConfig: ModuleConfig = require(configPath).default({
@@ -69,7 +69,7 @@ export class CoolModuleConfig {
         }
       }
     }
-    this.modules = _.orderBy(modules, ['order'], ['desc']).map(e => {
+    this.modules = _.orderBy(modules, ["order"], ["desc"]).map((e) => {
       return e.module;
     });
     await this.globalMiddlewareArr(globalMiddlewareArr);
@@ -82,7 +82,7 @@ export class CoolModuleConfig {
    */
   async moduleConfig(module, config) {
     // 追加配置
-    this.allConfig['module'][module] = config;
+    this.allConfig["module"][module] = config;
   }
 
   /**
@@ -90,7 +90,7 @@ export class CoolModuleConfig {
    * @param middleware 中间件
    */
   async globalMiddlewareArr(middlewares: any[]) {
-    middlewares = _.orderBy(middlewares, ['order'], ['desc']);
+    middlewares = _.orderBy(middlewares, ["order"], ["desc"]);
     for (const middleware of middlewares) {
       for (const item of middleware.data) {
         this.app.getMiddleware().insertLast(item);
