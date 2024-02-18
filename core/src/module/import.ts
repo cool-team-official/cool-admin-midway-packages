@@ -103,24 +103,8 @@ export class CoolModuleImport {
       // 导入数据
       for (const key in data) {
         try {
-          const repository = this.defaultDataSource.getRepository(
-            metadatas[key]
-          );
-          if (this.ormConfig.default.type == "postgres") {
-            for (const item of data[key]) {
-              const result: any = await repository.save(
-                repository.create(item)
-              );
-              if (item.id) {
-                await repository.update(result.id, { id: item.id });
-                // 更新pgsql序列
-                await this.defaultDataSource.query(
-                  `SELECT setval('${key}_id_seq', (SELECT MAX(id) FROM ${key}));`
-                );
-              }
-            }
-          } else {
-            await repository.insert(data[key]);
+          for (const item of data[key]) {
+            await this.importData(metadatas, item, key);
           }
         } catch (e) {
           this.coreLogger.error(
@@ -138,6 +122,57 @@ export class CoolModuleImport {
           module +
           " database complete \x1B[0m"
       );
+    }
+  }
+
+  /**
+   * 导入数据
+   * @param metadatas
+   * @param datas
+   * @param tableName
+   */
+  async importData(
+    metadatas: any[],
+    item: any,
+    tableName: string,
+    parentItem: any = null
+  ) {
+    const repository = this.defaultDataSource.getRepository(
+      metadatas[tableName]
+    );
+    // 处理当前项中的引用
+    if (parentItem) {
+      for (const key in item) {
+        if (typeof item[key] === "string" && item[key].startsWith("@")) {
+          const parentKey = item[key].substring(1); // 移除"@"符号
+          if (parentItem.hasOwnProperty(parentKey)) {
+            item[key] = parentItem[parentKey];
+          }
+        }
+      }
+    }
+    // 插入当前项到数据库
+    let insertedItem;
+    if (this.ormConfig.default.type == "postgres") {
+      insertedItem = await repository.save(repository.create(item));
+      if (item.id) {
+        await repository.update(insertedItem.id, { id: item.id });
+        await this.defaultDataSource.query(
+          `SELECT setval('${tableName}_id_seq', (SELECT MAX(id) FROM ${tableName}));`
+        );
+      }
+    } else {
+      insertedItem = await repository.insert(item);
+    }
+    // 递归处理@childDatas
+    if (!_.isEmpty(item["@childDatas"])) {
+      const childDatas = item["@childDatas"];
+      delete item["@childDatas"];
+      for (const childKey in childDatas) {
+        for (const childItem of childDatas[childKey]) {
+          await this.importData(metadatas, childItem, childKey, item);
+        }
+      }
     }
   }
 }
