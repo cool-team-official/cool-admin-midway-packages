@@ -63,5 +63,5 @@ export interface BaseUpload {
    * @param ctx
    * @param key 文件路径
    */
-  upload(ctx): Promise<string>;
+  upload(ctx): Promise<any>;
 }
