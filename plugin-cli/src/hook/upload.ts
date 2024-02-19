@@ -32,17 +32,17 @@ export interface Mode {
 /**
  * 文件上传
  */
-export interface BaseFile {
+export interface BaseUpload {
   /**
    * 获得上传模式
    */
-  getMode(): Promise<string>;
+  getMode(): Promise<Mode>;
 
   /**
    * 获得原始操作对象
    * @returns
    */
-  getMetaFileObj(): Promise<any>;
+  getMetaFileObj();
 
   /**
    * 下载并上传

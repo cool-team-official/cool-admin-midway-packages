@@ -1,5 +1,17 @@
 import { IMidwayContext, IMidwayApplication } from "@midwayjs/core";
 
+// 文件上传
+export * from "./hook/upload";
+
+// 异常处理
+export * from "./exception/base";
+export * from "./exception/comm";
+export * from "./exception/core";
+export * from "./exception/validate";
+
+// 全局参数
+export * from "./constant/global";
+
 /**
  * 插件信息
  */

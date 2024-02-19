@@ -1,6 +1,6 @@
 {
   "name": "@cool-midway/plugin-cli",
-  "version": "7.1.0",
+  "version": "7.1.2",
   "description": "cool-admin midway plugin",
   "main": "dist/index.js",
   "scripts": {
