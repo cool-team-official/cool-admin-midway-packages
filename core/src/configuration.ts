@@ -18,13 +18,13 @@ import { CoolModuleConfig } from "./module/config";
 import { CoolModuleImport } from "./module/import";
 import { CoolEventManager } from "./event";
 import { CoolEps } from "./rest/eps";
-import { CacheManager } from "@midwayjs/cache";
-import * as cache from "@midwayjs/cache";
 import { CoolDecorator } from "./decorator";
+import * as cache from "@midwayjs/cache-manager";
+import * as _cache from "@midwayjs/cache";
 
 @Configuration({
   namespace: "cool",
-  imports: [cache],
+  imports: [_cache, cache],
   importConfigs: [
     {
       default: DefaultConfig,
@@ -59,7 +59,7 @@ export class CoolConfiguration implements ILifeCycle {
     const eps: CoolEps = await container.getAsync(CoolEps);
     eps.init();
     // 缓存设置为全局
-    global["COOL-CACHE"] = await container.getAsync(CacheManager);
+    // global["COOL-CACHE"] = await container.getAsync(CacheManager);
     // 清除 location
     setTimeout(() => {
       location.clean();

@@ -1,8 +1,9 @@
 import { COOL_CACHE } from "./cache";
-import { CacheManager } from "@midwayjs/cache";
+import { CachingFactory, MidwayCache } from "@midwayjs/cache-manager";
 import {
   Init,
   Inject,
+  InjectClient,
   JoinPoint,
   MidwayDecoratorService,
   Provide,
@@ -27,8 +28,8 @@ export class CoolDecorator {
   @Inject()
   decoratorService: MidwayDecoratorService;
 
-  @Inject()
-  cacheManager: CacheManager;
+  @InjectClient(CachingFactory, "default")
+  midwayCache: MidwayCache;
 
   @Inject()
   coolUrlTagData: CoolUrlTagData;
@@ -56,15 +57,17 @@ export class CoolDecorator {
               JSON.stringify(joinPoint.args)
           );
           // 缓存有数据就返回
-          let data: any = await this.cacheManager.get(key);
+          let data: any = await this.midwayCache.get(key);
           if (data) {
             return JSON.parse(data);
           } else {
             // 执行原始方法
             data = await joinPoint.proceed(...joinPoint.args);
-            await this.cacheManager.set(key, JSON.stringify(data), {
-              ttl: options.metadata,
-            });
+            await this.midwayCache.set(
+              key,
+              JSON.stringify(data),
+              options.metadata
+            );
           }
           return data;
         },

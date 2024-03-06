@@ -7,6 +7,9 @@ export * from "./exception/base";
 export * from "./exception/comm";
 export * from "./exception/validate";
 
+// cache
+export * from "./cache/store";
+
 // entity
 export * from "./entity/base";
 export * from "./entity/typeorm";

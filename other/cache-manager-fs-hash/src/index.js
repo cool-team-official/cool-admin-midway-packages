@@ -1,11 +1,10 @@
-const fs = require('fs');
-const crypto = require('crypto');
-const path = require('path');
-const promisify = require('util').promisify;
-const lockFile = require('lockfile');
-const jsonFileStore = require('./json-file-store');
-const wrapCallback = require('./wrap-callback');
-
+const fs = require("fs");
+const crypto = require("crypto");
+const path = require("path");
+const promisify = require("util").promisify;
+const lockFile = require("lockfile");
+const jsonFileStore = require("./json-file-store");
+const wrapCallback = require("./wrap-callback");
 
 /**
  * construction of the disk storage
@@ -18,31 +17,32 @@ const wrapCallback = require('./wrap-callback');
  * @returns {DiskStore}
  */
 exports.create = function (args) {
-    return new DiskStore(args && args.options ? args.options : args);
+  return new DiskStore(args && args.options ? args.options : args);
 };
 
 function DiskStore(options) {
-    options = options || {};
+  options = options || {};
 
-    this.options = {
-        path: options.path || './cache', /* path for cached files  */
-        ttl: options.ttl, /* time before expiring in seconds */
-        maxsize: options.maxsize || Infinity, /* max size in bytes on disk */
-        subdirs: options.subdirs || false,
-        zip: options.zip || false,
-        lockFile: { //check lock at 0ms 50ms 100ms ... 400ms 1400ms 1450ms... up to 10 seconds, after that just asume the lock is staled
-            wait: 400,
-            pollPeriod: 50,
-            stale: 10 * 1000,
-            retries: 10,
-            retryWait: 600,
-        }
-    };
+  this.options = {
+    path: options.path || "./cache" /* path for cached files  */,
+    ttl: options.ttl /* time before expiring in seconds */,
+    maxsize: options.maxsize || Infinity /* max size in bytes on disk */,
+    subdirs: options.subdirs || false,
+    zip: options.zip || false,
+    lockFile: {
+      //check lock at 0ms 50ms 100ms ... 400ms 1400ms 1450ms... up to 10 seconds, after that just asume the lock is staled
+      wait: 400,
+      pollPeriod: 50,
+      stale: 10 * 1000,
+      retries: 10,
+      retryWait: 600,
+    },
+  };
 
-    // check storage directory for existence (or create it)
-    if (!fs.existsSync(this.options.path)) {
-        fs.mkdirSync(this.options.path);
-    }
+  // check storage directory for existence (or create it)
+  if (!fs.existsSync(this.options.path)) {
+    fs.mkdirSync(this.options.path);
+  }
 }
 
 /**
@@ -55,78 +55,77 @@ function DiskStore(options) {
  * @returns {Promise}
  */
 DiskStore.prototype.set = wrapCallback(async function (key, val, options) {
-    key = key + '';
-    const filePath = this._getFilePathByKey(key);
+  key = key + "";
+  const filePath = this._getFilePathByKey(key);
 
-    const ttl = (options && (options.ttl >= 0)) ? +options.ttl : this.options.ttl;
-    const data = {
-        key: key,
-        val: val,
-    };
-    if(ttl>0){
-        data.expireTime = Date.now() + ttl * 1000;
-    }
+  const ttl = options && options.ttl >= 0 ? +options.ttl : this.options.ttl;
+  const data = {
+    key: key,
+    val: val,
+  };
+  if (ttl > 0) {
+    data.expireTime = Date.now() + ttl * 1000;
+  }
 
+  if (this.options.subdirs) {
+    //check if subdir exists or create it
+    const dir = path.dirname(filePath);
+    await promisify(fs.access)(dir, fs.constants.W_OK).catch(function () {
+      return promisify(fs.mkdir)(dir).catch((err) => {
+        if (err.code !== "EEXIST") throw err;
+      });
+    });
+  }
 
-    if (this.options.subdirs) {
-        //check if subdir exists or create it
-        const dir = path.dirname(filePath);
-        await promisify(fs.access)(dir, fs.constants.W_OK).catch(function () {
-            return promisify(fs.mkdir)(dir).catch(err => {
-                if (err.code !== 'EEXIST') throw err;
-            });
-        });
-    }
-
-    try {
-        await this._lock(filePath);
-        await jsonFileStore.write(filePath, data, this.options);
-    } catch (err) {
-        throw err;
-    } finally {
-        await this._unlock(filePath);
-    }
+  try {
+    await this._lock(filePath);
+    await jsonFileStore.write(filePath, data, this.options);
+  } catch (err) {
+    throw err;
+  } finally {
+    await this._unlock(filePath);
+  }
 });
 
-
 DiskStore.prototype._readFile = async function (key) {
-    key = key + '';
-    const filePath = this._getFilePathByKey(key);
+  key = key + "";
+  const filePath = this._getFilePathByKey(key);
 
-    try {
-        const data = await jsonFileStore.read(filePath, this.options).catch(async (err) => {
-            if (err.code === 'ENOENT') {
-                throw err;
-            }
-            //maybe the file is currently written to, lets lock it and read again
-            try {
-                await this._lock(filePath);
-                return await jsonFileStore.read(filePath, this.options);
-            } catch (err2) {
-                throw err2;
-            } finally {
-                await this._unlock(filePath);
-            }
-        });
-        if (data.expireTime <= Date.now()) {
-            //cache expired
-            this.del(key).catch(() => 0 /* ignore */);
-            return undefined;
+  try {
+    const data = await jsonFileStore
+      .read(filePath, this.options)
+      .catch(async (err) => {
+        if (err.code === "ENOENT") {
+          throw err;
         }
-        if (data.key !== key) {
-            //hash collision
-            return undefined;
+        //maybe the file is currently written to, lets lock it and read again
+        try {
+          await this._lock(filePath);
+          return await jsonFileStore.read(filePath, this.options);
+        } catch (err2) {
+          throw err2;
+        } finally {
+          await this._unlock(filePath);
         }
-        return data;
-
-    } catch (err) {
-        //file does not exist lets return a cache miss
-        if (err.code === 'ENOENT') {
-            return undefined;
-        } else {
-            throw err;
-        }
+      });
+    if (data.expireTime <= Date.now()) {
+      //cache expired
+      this.del(key).catch(() => 0 /* ignore */);
+      return undefined;
     }
+    if (data.key !== key) {
+      //hash collision
+      return undefined;
+    }
+    return data;
+  } catch (err) {
+    //file does not exist lets return a cache miss
+    if (err.code === "ENOENT") {
+      return undefined;
+    } else {
+      throw err;
+    }
+  }
 };
 
 /**
@@ -136,12 +135,12 @@ DiskStore.prototype._readFile = async function (key) {
  * @returns {Promise}
  */
 DiskStore.prototype.get = wrapCallback(async function (key) {
-    const data = await this._readFile(key);
-    if (data) {
-        return data.val;
-    } else {
-        return data;
-    }
+  const data = await this._readFile(key);
+  if (data) {
+    return data.val;
+  } else {
+    return data;
+  }
 });
 
 /**
@@ -151,67 +150,67 @@ DiskStore.prototype.get = wrapCallback(async function (key) {
  * @returns {Promise}
  */
 DiskStore.prototype.ttl = wrapCallback(async function (key) {
-    const data = await this._readFile(key);
-    if (data) {
-        return (data.expireTime - Date.now()) / 1000;
-    } else {
-        return 0;
-    }
+  const data = await this._readFile(key);
+  if (data) {
+    return (data.expireTime - Date.now()) / 1000;
+  } else {
+    return 0;
+  }
 });
-
 
 /**
  * delete entry from cache
  */
 DiskStore.prototype.del = wrapCallback(async function (key) {
-    const filePath = this._getFilePathByKey(key);
-    try {
-        if (this.options.subdirs) {
-            //check if the folder exists to fail faster
-            const dir = path.dirname(filePath);
-            await promisify(fs.access)(dir, fs.constants.W_OK);
-        }
-
-        await this._lock(filePath);
-        await jsonFileStore.delete(filePath, this.options);
-    } catch (err) {
-        //ignore deleting non existing keys
-        if (err.code !== 'ENOENT') {
-            throw err;
-        }
-    } finally {
-        await this._unlock(filePath);
+  const filePath = this._getFilePathByKey(key);
+  try {
+    if (this.options.subdirs) {
+      //check if the folder exists to fail faster
+      const dir = path.dirname(filePath);
+      await promisify(fs.access)(dir, fs.constants.W_OK);
     }
-});
 
+    await this._lock(filePath);
+    await jsonFileStore.delete(filePath, this.options);
+  } catch (err) {
+    //ignore deleting non existing keys
+    if (err.code !== "ENOENT") {
+      throw err;
+    }
+  } finally {
+    await this._unlock(filePath);
+  }
+});
 
 /**
  * cleanup cache on disk -> delete all files from the cache
  */
 DiskStore.prototype.reset = wrapCallback(async function () {
-    const readdir = promisify(fs.readdir);
-    const stat = promisify(fs.stat);
-    const unlink = promisify(fs.unlink);
+  const readdir = promisify(fs.readdir);
+  const stat = promisify(fs.stat);
+  const unlink = promisify(fs.unlink);
 
-    return await deletePath(this.options.path, 2);
+  return await deletePath(this.options.path, 2);
 
-    async function deletePath(fileOrDir, maxDeep) {
-        if (maxDeep < 0) {
-            return;
-        }
-        const stats = await stat(fileOrDir);
-        if (stats.isDirectory()) {
-            const files = await readdir(fileOrDir);
-            for (let i = 0; i < files.length; i++) {
-                await deletePath(path.join(fileOrDir, files[i]), maxDeep - 1);
-            }
-        } else if (stats.isFile() && /[/\\]diskstore-[0-9a-fA-F/\\]+(\.json|-\d\.bin)/.test(fileOrDir)) {
-            //delete the file if it is a diskstore file
-            await unlink(fileOrDir);
-        }
+  async function deletePath(fileOrDir, maxDeep) {
+    if (maxDeep < 0) {
+      return;
     }
+    const stats = await stat(fileOrDir);
+    if (stats.isDirectory()) {
+      const files = await readdir(fileOrDir);
+      for (let i = 0; i < files.length; i++) {
+        await deletePath(path.join(fileOrDir, files[i]), maxDeep - 1);
+      }
+    } else if (
+      stats.isFile() &&
+      /[/\\]diskstore-[0-9a-fA-F/\\]+(\.json|-\d\.bin)/.test(fileOrDir)
+    ) {
+      //delete the file if it is a diskstore file
+      await unlink(fileOrDir);
+    }
+  }
 });
-
 
 /**
  * locks a file so other forks that want to use the same file have to wait
@@ -220,10 +219,10 @@ DiskStore.prototype.reset = wrapCallback(async function () {
  * @private
  */
 DiskStore.prototype._lock = function (filePath) {
-    return promisify(lockFile.lock)(
-        filePath + '.lock',
-        JSON.parse(JSON.stringify(this.options.lockFile)) //the options are modified -> create a copy to prevent that
-    );
+  return promisify(lockFile.lock)(
+    filePath + ".lock",
+    JSON.parse(JSON.stringify(this.options.lockFile)) //the options are modified -> create a copy to prevent that
+  );
 };
 
 /**
@@ -234,7 +233,7 @@ DiskStore.prototype._lock = function (filePath) {
  * @private
  */
 DiskStore.prototype._unlock = function (filePath) {
-    return promisify(lockFile.unlock)(filePath + '.lock');
+  return promisify(lockFile.unlock)(filePath + ".lock");
 };
 
 /**
@@ -244,18 +243,18 @@ DiskStore.prototype._unlock = function (filePath) {
  * @private
  */
 DiskStore.prototype._getFilePathByKey = function (key) {
-    const hash = crypto.createHash('md5').update(key + '').digest('hex');
-    if (this.options.subdirs) {
-        //create subdirs with the first 3 chars of the hash
-        return path.join(
-            this.options.path,
-            'diskstore-' + hash.substr(0, 3),
-            hash.substr(3),
-        );
-    } else {
-        return path.join(
-            this.options.path,
-            'diskstore-' + hash
-        );
-    }
+  const hash = crypto
+    .createHash("md5")
+    .update(key + "")
+    .digest("hex");
+  if (this.options.subdirs) {
+    //create subdirs with the first 3 chars of the hash
+    return path.join(
+      this.options.path,
+      "diskstore-" + hash.substr(0, 3),
+      hash.substr(3)
+    );
+  } else {
+    return path.join(this.options.path, "diskstore-" + hash);
+  }
 };
