@@ -55,14 +55,14 @@ export abstract class BaseService {
   baseApp: Application;
 
   @Init()
-  async init(){
+  async init() {
     const services = {
       mysql: this.baseMysqlService,
       postgres: this.basePgService,
-      sqlite: this.baseSqliteService
+      sqlite: this.baseSqliteService,
     };
     this.service = services[this.ormType];
-    if(!this.service) throw new CoolCoreException('暂不支持当前数据库类型');
+    if (!this.service) throw new CoolCoreException("暂不支持当前数据库类型");
     this.sqlParams = this.service.sqlParams;
     await this.service.init();
   }
@@ -79,7 +79,6 @@ export abstract class BaseService {
     this.service.setCtx(ctx);
   }
 
- 
   // 设置应用对象
   setApp(app: Application) {
     this.baseApp = app;
@@ -104,11 +103,11 @@ export abstract class BaseService {
     return this.service.getCountSql(sql);
   }
 
-   /**
+  /**
    * 参数安全性检查
    * @param params
    */
-   async paramSafetyCheck(params) {
+  async paramSafetyCheck(params) {
     return await this.service.paramSafetyCheck(params);
   }
 
@@ -153,7 +152,12 @@ export abstract class BaseService {
    * @param connectionName 连接名称
    */
   async sqlRenderPage(sql, query, autoSort = true, connectionName?) {
-    return await this.service.sqlRenderPage(sql, query, autoSort, connectionName);
+    return await this.service.sqlRenderPage(
+      sql,
+      query,
+      autoSort,
+      connectionName
+    );
   }
 
   /**
@@ -162,6 +166,7 @@ export abstract class BaseService {
    * @param infoIgnoreProperty 忽略返回属性
    */
   async info(id: any, infoIgnoreProperty?: string[]) {
+    this.service.setEntity(this.entity);
     return await this.service.info(id, infoIgnoreProperty);
   }
 
@@ -170,6 +175,7 @@ export abstract class BaseService {
    * @param ids 删除的ID集合 如：[1,2,3] 或者 1,2,3
    */
   async delete(ids: any) {
+    this.service.setEntity(this.entity);
     await this.modifyBefore(ids, "delete");
     await this.service.delete(ids);
     await this.modifyAfter(ids, "delete");
@@ -181,6 +187,7 @@ export abstract class BaseService {
    * @param entity 实体
    */
   async softDelete(ids: number[], entity?: Repository<any>) {
+    this.service.setEntity(this.entity);
     await this.service.softDelete(ids, entity);
   }
 
@@ -189,10 +196,11 @@ export abstract class BaseService {
    * @param param 数据
    */
   async update(param: any) {
+    this.service.setEntity(this.entity);
     if (!this.entity) throw new CoolValidateException(ERRINFO.NOENTITY);
     if (!param.id && !(param instanceof Array))
       throw new CoolValidateException(ERRINFO.NOID);
-    await this.addOrUpdate(param,'update')
+    await this.addOrUpdate(param, "update");
   }
 
   /**
@@ -201,7 +209,7 @@ export abstract class BaseService {
    */
   async add(param: any | any[]): Promise<Object> {
     if (!this.entity) throw new CoolValidateException(ERRINFO.NOENTITY);
-    await this.addOrUpdate(param, 'add');
+    await this.addOrUpdate(param, "add");
     return {
       id:
         param instanceof Array
@@ -218,7 +226,8 @@ export abstract class BaseService {
    * 新增|修改
    * @param param 数据
    */
-  async addOrUpdate(param: any | any[], type: 'add' | 'update' = 'add') {
+  async addOrUpdate(param: any | any[], type: "add" | "update" = "add") {
+    this.service.setEntity(this.entity);
     await this.modifyBefore(param, type);
     await this.service.addOrUpdate(param, type);
     await this.modifyAfter(param, type);
@@ -231,6 +240,7 @@ export abstract class BaseService {
    * @param connectionName 连接名
    */
   async list(query, option, connectionName?): Promise<any> {
+    this.service.setEntity(this.entity);
     return await this.service.list(query, option, connectionName);
   }
 
@@ -241,6 +251,7 @@ export abstract class BaseService {
    * @param connectionName 连接名
    */
   async page(query, option, connectionName?) {
+    this.service.setEntity(this.entity);
     return await this.service.page(query, option, connectionName);
   }
 
@@ -250,6 +261,7 @@ export abstract class BaseService {
    * @param option
    */
   async getOptionFind(query, option: QueryOp) {
+    this.service.setEntity(this.entity);
     return await this.service.getOptionFind(query, option);
   }
 
@@ -270,5 +282,4 @@ export abstract class BaseService {
     data: any,
     type: "delete" | "update" | "add"
   ): Promise<void> {}
- 
 }
