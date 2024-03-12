@@ -6,7 +6,7 @@ import { Application, Context } from "@midwayjs/koa";
 import * as SqlString from "sqlstring";
 import { CoolConfig } from "../interface";
 import { TypeORMDataSourceManager } from "@midwayjs/typeorm";
-import { Brackets, In, Repository, SelectQueryBuilder } from "typeorm";
+import { Brackets, Equal, In, Repository, SelectQueryBuilder } from "typeorm";
 import { QueryOp } from "../decorator/controller";
 import * as _ from "lodash";
 import { CoolEventManager } from "../event";
@@ -243,7 +243,7 @@ export abstract class BaseMysqlService {
     if (!id) {
       throw new CoolValidateException(ERRINFO.NOID);
     }
-    const info = await this.entity.findOneBy({ id });
+    const info = await this.entity.findOneBy({ id: Equal(id) });
     if (info && infoIgnoreProperty) {
       for (const property of infoIgnoreProperty) {
         delete info[property];
@@ -295,33 +295,37 @@ export abstract class BaseMysqlService {
    * 新增|修改
    * @param param 数据
    */
-  async addOrUpdate(param: any | any[], type: 'add' | 'update' = 'add') {
+  async addOrUpdate(param: any | any[], type: "add" | "update" = "add") {
     if (!this.entity) throw new CoolValidateException(ERRINFO.NOENTITY);
     delete param.createTime;
     // 判断是否是批量操作
     if (param instanceof Array) {
-        param.forEach((item) => {
-          item.updateTime = new Date();
-          item.createTime = new Date();
-        });
-        await this.entity.save(param);
-    } else{
-      const upsert = this._coolConfig.crud?.upsert || 'normal';
-      if (type == 'update') {
-        if(upsert == 'save') {
-          const info = await this.entity.findOneBy({id: param.id})
+      param.forEach((item) => {
+        item.updateTime = new Date();
+        item.createTime = new Date();
+      });
+      await this.entity.save(param);
+    } else {
+      const upsert = this._coolConfig.crud?.upsert || "normal";
+      if (type == "update") {
+        if (upsert == "save") {
+          const info = await this.entity.findOneBy({ id: param.id });
           param = {
             ...info,
-            ...param
-          }
+            ...param,
+          };
         }
         param.updateTime = new Date();
-        upsert == 'normal'? await this.entity.update(param.id, param): await this.entity.save(param);
+        upsert == "normal"
+          ? await this.entity.update(param.id, param)
+          : await this.entity.save(param);
       }
-      if(type =='add'){
+      if (type == "add") {
         param.createTime = new Date();
         param.updateTime = new Date();
-        upsert == 'normal'? await this.entity.insert(param): await this.entity.save(param);
+        upsert == "normal"
+          ? await this.entity.insert(param)
+          : await this.entity.save(param);
       }
     }
   }
@@ -436,10 +440,10 @@ export abstract class BaseMysqlService {
         for (let key of option.fieldEq) {
           const c = {};
           // 如果key有包含.的情况下操作
-          if(typeof key === "string" && key.includes('.')){
-            const keys = key.split('.');
+          if (typeof key === "string" && key.includes(".")) {
+            const keys = key.split(".");
             const lastKey = keys.pop();
-            key = {requestParam: lastKey, column: key};
+            key = { requestParam: lastKey, column: key };
           }
           // 单表字段无别名的情况下操作
           if (typeof key === "string") {
@@ -496,5 +500,4 @@ export abstract class BaseMysqlService {
     sqlArr.push(sqls[sqls.length - 1]);
     return sqlArr.join(" ");
   }
-
 }
