@@ -1,3 +1,4 @@
+import { MidwayCache } from "@midwayjs/cache-manager";
 import { IMidwayContext, IMidwayApplication } from "@midwayjs/core";
 
 // 文件上传
@@ -46,6 +47,8 @@ export abstract class BasePlugin {
   ctx: IMidwayContext;
   /** 应用实例，用到此项无法本地调试，需安装到cool-admin中才能调试 */
   app: IMidwayApplication;
+  /** 缓存 */
+  cache: MidwayCache;
 
   setCtx(ctx: IMidwayContext) {
     this.ctx = ctx;
@@ -66,10 +69,14 @@ export abstract class BasePlugin {
   async init(
     pluginInfo: PluginInfo,
     ctx?: IMidwayContext,
-    app?: IMidwayApplication
+    app?: IMidwayApplication,
+    other?: any
   ) {
     this.pluginInfo = pluginInfo;
     this.ctx = ctx;
     this.app = app;
+    if (other) {
+      this.cache = other.cache;
+    }
   }
 }
