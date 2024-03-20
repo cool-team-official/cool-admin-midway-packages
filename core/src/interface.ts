@@ -1,5 +1,6 @@
 import { MiddlewareParamArray } from "@midwayjs/core";
 import { AedesOptions } from "aedes";
+// @ts-ignore
 import { PublishPacket } from "packet";
 
 /**
@@ -20,7 +21,7 @@ export interface ModuleConfig {
 
 export interface CoolConfig {
   /** 短信 */
-  sms?: CoolSmsConfig,
+  sms?: CoolSmsConfig;
   /** 是否自动导入数据库 */
   initDB?: boolean;
   /** Eps */
@@ -38,7 +39,7 @@ export interface CoolConfig {
     /** 分页查询每页条数 */
     pageSize: number;
     /** 插入方式 */
-    upsert : 'normal' | 'save'
+    upsert: "normal" | "save";
     // 多租户
     // tenant: boolean;
   };
@@ -221,7 +222,7 @@ export interface AWSConfig {
   /** conditions */
   conditions?: any[];
   /** expires */
-  expires?: number
+  expires?: number;
   /** publicDomain */
   publicDomain?: string;
   /** forcePathStyle */
@@ -339,7 +340,6 @@ export interface CoolIotConfig {
   serve?: AedesOptions;
 }
 
-
 export interface CoolSmsConfig {
   /**
    * 阿里云短信配置
@@ -443,4 +443,3 @@ export interface CoolSmsYpConfig {
    */
   template?: string;
 }
-

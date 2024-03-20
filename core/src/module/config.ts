@@ -44,9 +44,9 @@ export class CoolModuleConfig {
       const modulePath = `${moduleBasePath}/${module}`;
       const dirStats = fs.statSync(modulePath);
       if (dirStats.isDirectory()) {
-        const configPath = `${modulePath}/config.${
-          this.app.getEnv() == "local" ? "ts" : "js"
-        }`;
+        const configPath = fs.existsSync(`${modulePath}/config.ts`)
+          ? `${modulePath}/config.ts`
+          : `${modulePath}/config.js`;
         if (fs.existsSync(configPath)) {
           const moduleConfig: ModuleConfig = require(configPath).default({
             app: this.app,

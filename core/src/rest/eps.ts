@@ -3,11 +3,15 @@ import {
   getClassMetadata,
   listModule,
   Provide,
-  Scope,
-  ScopeEnum,
 } from "@midwayjs/decorator";
 import * as _ from "lodash";
-import { Config, Inject, MidwayWebRouterService } from "@midwayjs/core";
+import {
+  Scope,
+  ScopeEnum,
+  Config,
+  Inject,
+  MidwayWebRouterService,
+} from "@midwayjs/core";
 import { TypeORMDataSourceManager } from "@midwayjs/typeorm";
 import { CoolUrlTagData } from "../tag/data";
 import { TagTypes } from "../decorator/tag";
@@ -30,10 +34,10 @@ export class CoolEps {
   @Inject()
   typeORMDataSourceManager: TypeORMDataSourceManager;
 
-  @Config('cool.eps')
+  @Config("cool.eps")
   epsConfig: boolean;
 
-  @Config('module')
+  @Config("module")
   moduleConfig: any;
 
   @Inject()
@@ -41,7 +45,7 @@ export class CoolEps {
 
   // @Init()
   async init() {
-    if(!this.epsConfig) return;
+    if (!this.epsConfig) return;
     const entitys = await this.entity();
     const controllers = await this.controller();
     const routers = await this.router();
@@ -54,10 +58,10 @@ export class CoolEps {
       (_.startsWith(prefix, "/admin/") ? adminArr : appArr).push({
         module,
         info: {
-         type: {
-          name: prefix.split("/").pop(),
-          description: routerOptions?.description || "" ,
-         },
+          type: {
+            name: prefix.split("/").pop(),
+            description: routerOptions?.description || "",
+          },
         },
         api: routers[prefix],
         name,
@@ -71,17 +75,17 @@ export class CoolEps {
 
   /**
    * 模块信息
-   * @param module 
+   * @param module
    */
   async modules(module?: string) {
-    for(const key in this.moduleConfig){
+    for (const key in this.moduleConfig) {
       const config = this.moduleConfig[key];
       this.module[key] = {
         name: config.name,
         description: config.description,
-      }
+      };
     }
-    return module? this.module[module]: this.module;
+    return module ? this.module[module] : this.module;
   }
 
   /**
@@ -103,11 +107,11 @@ export class CoolEps {
    */
   async router() {
     let ignoreUrls: string[] = this.coolUrlTagData.byKey(TagTypes.IGNORE_TOKEN);
-    if(_.isEmpty(ignoreUrls)){
+    if (_.isEmpty(ignoreUrls)) {
       ignoreUrls = [];
     }
     return _.groupBy(
-      (await await this.midwayWebRouterService.getFlattenRouterTable()).map(
+      (await this.midwayWebRouterService.getFlattenRouterTable()).map(
         (item) => {
           return {
             method: item.requestMethod,
@@ -116,7 +120,7 @@ export class CoolEps {
             dts: {},
             tag: "",
             prefix: item.prefix,
-            ignoreToken: ignoreUrls.includes(item.prefix+item.url),
+            ignoreToken: ignoreUrls.includes(item.prefix + item.url),
           };
         }
       ),
@@ -138,7 +142,7 @@ export class CoolEps {
       for (const entityMetadata of entityMetadatas) {
         const commColums = [];
         let columns = entityMetadata.columns;
-        if(entityMetadata.tableType != 'regular') continue;
+        if (entityMetadata.tableType != "regular") continue;
         columns = _.filter(
           columns.map((e) => {
             return {
