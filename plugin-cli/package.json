@@ -1,6 +1,6 @@
 {
   "name": "@cool-midway/plugin-cli",
-  "version": "7.1.4",
+  "version": "7.1.7",
   "description": "cool-admin midway plugin",
   "main": "dist/index.js",
   "scripts": {
@@ -22,6 +22,7 @@
   "readme": "README.md",
   "license": "MIT",
   "dependencies": {
+    "@cool-midway/cache-manager-fs-hash": "^7.0.0",
     "@midwayjs/cache-manager": "^3.15.2",
     "@midwayjs/core": "^3.15.0",
     "archiver": "^6.0.1",
