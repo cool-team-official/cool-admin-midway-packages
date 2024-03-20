@@ -104,6 +104,9 @@ export abstract class BasePlugin {
   }
 }
 
+/**
+ * 插件服务
+ */
 export declare class PluginService {
   /**
    * 调用插件
