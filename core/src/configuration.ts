@@ -45,12 +45,8 @@ export class CoolConfiguration implements ILifeCycle {
     this.coolEventManager.emit("onReady");
     // 处理模块配置
     await container.getAsync(CoolModuleConfig);
-    // 导入模块数据
-    await container.getAsync(CoolModuleImport);
     // 常用函数处理
     await container.getAsync(FuncUtil);
-    // 事件
-    await container.getAsync(CoolEventManager);
     // 异常处理
     this.app.useFilter([CoolExceptionFilter]);
     // 装饰器
@@ -71,6 +67,10 @@ export class CoolConfiguration implements ILifeCycle {
   ) {}
 
   async onServerReady(container: IMidwayContainer) {
+    // 事件
+    await (await container.getAsync(CoolEventManager)).init();
+    // 导入模块数据
+    (await container.getAsync(CoolModuleImport)).init();
     // 实体与路径
     const eps: CoolEps = await container.getAsync(CoolEps);
     eps.init();

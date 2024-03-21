@@ -1,14 +1,5 @@
 import { ILogger, IMidwayApplication } from "@midwayjs/core";
-import {
-  App,
-  Config,
-  Init,
-  Inject,
-  Logger,
-  Provide,
-  Scope,
-  ScopeEnum,
-} from "@midwayjs/decorator";
+import { App, Config, Inject, Logger, Provide } from "@midwayjs/decorator";
 import * as fs from "fs";
 import { CoolModuleConfig } from "./config";
 import * as path from "path";
@@ -17,6 +8,7 @@ import { DataSource } from "typeorm";
 import { CoolEventManager } from "../event";
 import { CoolModuleMenu } from "./menu";
 import * as _ from "lodash";
+import { Scope, ScopeEnum } from "@midwayjs/core";
 
 /**
  * 模块sql
@@ -51,7 +43,6 @@ export class CoolModuleImport {
   @Inject()
   coolModuleMenu: CoolModuleMenu;
 
-  @Init()
   async init() {
     // 是否需要导入
     if (this.coolConfig.initDB) {
