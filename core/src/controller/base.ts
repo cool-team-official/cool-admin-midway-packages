@@ -81,6 +81,7 @@ export abstract class BaseController {
     if (entity) {
       const dataSourceName =
         this.typeORMDataSourceManager.getDataSourceNameByModel(entity);
+      this.connectionName = dataSourceName;
       let entityModel = this.typeORMDataSourceManager
         .getDataSource(dataSourceName)
         .getRepository(entity);
