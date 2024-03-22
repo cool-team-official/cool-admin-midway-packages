@@ -154,7 +154,8 @@ export class CoolEventManager extends Events {
    */
   async globalEvent() {
     process.on("message", async (message: any) => {
-      const data = message.data;
+      const data = message?.data;
+      if (!data) return;
       if (data.type != `${COOL_EVENT_MESSAGE}@${this.keys}`) return;
       await this.doAction(message);
     });
