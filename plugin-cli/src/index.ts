@@ -101,7 +101,13 @@ export abstract class BasePlugin {
       this.cache = other.cache;
       this.pluginService = other.pluginService;
     }
+    await this.ready();
   }
+
+  /**
+   * 插件就绪
+   */
+  async ready() {}
 }
 
 /**
