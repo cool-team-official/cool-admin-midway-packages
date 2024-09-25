@@ -1,6 +1,6 @@
 {
   "name": "@cool-midway/cloud",
-  "version": "7.0.0",
+  "version": "7.1.0",
   "description": "",
   "main": "dist/index.js",
   "typings": "index.d.ts",
@@ -27,9 +27,9 @@
     "url": "https://cool-js.com"
   },
   "devDependencies": {
-    "@cool-midway/core": "^7.0.0",
+    "@cool-midway/core": "^7.1.19",
     "@midwayjs/cli": "^2.0.0",
-    "@midwayjs/core": "^3.9.0",
+    "@midwayjs/core": "^3.16.0",
     "@midwayjs/decorator": "^3.9.0",
     "@midwayjs/mock": "^3.9.0",
     "@midwayjs/typeorm": "^3.9.0",
@@ -42,5 +42,8 @@
     "ts-jest": "^29.0.3",
     "typeorm": "^0.3.11",
     "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "sqlstring": "^2.3.3"
   }
 }
