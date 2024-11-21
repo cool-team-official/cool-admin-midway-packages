@@ -65,11 +65,25 @@ export abstract class BaseController {
     if (!curdOption?.insertParam) {
       return;
     }
-    this.baseCtx.request.body = {
-      // @ts-ignore
-      ...this.baseCtx.request.body,
-      ...(await curdOption.insertParam(this.baseCtx, this.baseApp)),
-    };
+    const body = this.baseCtx.request.body;
+    if (body) {
+      // 判断body是否是数组
+      if (Array.isArray(body)) {
+        for (let i = 0; i < body.length; i++) {
+          body[i] = {
+            ...body[i],
+            ...(await curdOption.insertParam(this.baseCtx, this.baseApp)),
+          };
+        }
+        this.baseCtx.request.body = body;
+        return;
+      }
+      this.baseCtx.request.body = {
+        // @ts-ignore
+        ...this.baseCtx.request.body,
+        ...(await curdOption.insertParam(this.baseCtx, this.baseApp)),
+      };
+    }
   }
 
   /**
