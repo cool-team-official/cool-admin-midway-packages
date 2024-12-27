@@ -12,7 +12,6 @@ import { Configuration } from "@midwayjs/decorator";
 import * as DefaultConfig from "./config/config.default";
 import { CoolExceptionFilter } from "./exception/filter";
 import { FuncUtil } from "./util/func";
-import location from "./util/location";
 import * as koa from "@midwayjs/koa";
 import { CoolModuleConfig } from "./module/config";
 import { CoolModuleImport } from "./module/import";
@@ -54,11 +53,11 @@ export class CoolConfiguration implements ILifeCycle {
 
     // 缓存设置为全局
     // global["COOL-CACHE"] = await container.getAsync(CacheManager);
-    // 清除 location
-    setTimeout(() => {
-      location.clean();
-      this.coreLogger.info("\x1B[36m [cool:core] location clean \x1B[0m");
-    }, 10000);
+    // // 清除 location
+    // setTimeout(() => {
+    //   location.clean();
+    //   this.coreLogger.info("\x1B[36m [cool:core] location clean \x1B[0m");
+    // }, 10000);
   }
 
   async onConfigLoad(
@@ -75,6 +74,6 @@ export class CoolConfiguration implements ILifeCycle {
     const eps: CoolEps = await container.getAsync(CoolEps);
     eps.init();
     this.coolEventManager.emit("onServerReady");
-    location.clean();
+    // location.clean();
   }
 }

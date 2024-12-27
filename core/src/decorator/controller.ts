@@ -156,7 +156,7 @@ export function CoolController(
           res.path.split(`modules/${module}`)[0]
         }modules/${module}/config.${_.endsWith(res.path, "ts") ? "ts" : "js"}`;
         if (os.type() == "Windows_NT") {
-          path = path.substr(1);
+          path = path.substring(1);
         }
         if (fs.existsSync(path)) {
           const config: ModuleConfig = require(path).default();
