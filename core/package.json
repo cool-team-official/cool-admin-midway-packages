@@ -1,6 +1,6 @@
 {
   "name": "@cool-midway/core",
-  "version": "7.1.22",
+  "version": "7.1.23",
   "description": "",
   "main": "dist/index.js",
   "typings": "index.d.ts",

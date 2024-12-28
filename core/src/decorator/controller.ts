@@ -104,7 +104,7 @@ export interface RouterOptions {
   description?: string;
   tagName?: string;
   ignoreGlobalPrefix?: boolean;
-} 
+}
 
 // COOL的装饰器
 export function CoolController(
@@ -115,22 +115,22 @@ export function CoolController(
     // 将装饰的类，绑定到该装饰器，用于后续能获取到 class
     saveModule(CONTROLLER_KEY, target);
     let prefix;
-    if(curdOption){
+    if (curdOption) {
       // 判断 curdOption 的类型
       if (typeof curdOption === "string") {
         prefix = curdOption;
-      } else if (curdOption && 'api' in curdOption) {
+      } else if (curdOption && "api" in curdOption) {
         // curdOption 是 CurdOption 类型
         prefix = curdOption.prefix || "";
       } else {
         // curdOption 是 RouterOptions 类型 合并到 routerOptions
-        routerOptions = { ...curdOption , ...routerOptions, };
+        routerOptions = { ...curdOption, ...routerOptions };
       }
     }
     // 如果不存在路由前缀，那么自动根据当前文件夹路径
     location.scriptPath(target).then(async (res: any) => {
       const pathSps = res.path.split(".");
-      const paths = pathSps[pathSps.length - 2].split("/");
+      const paths = pathSps[pathSps.length - 2].split(/[/\\]/);
       const pathArr = [];
       let module = null;
       for (const path of paths.reverse()) {
