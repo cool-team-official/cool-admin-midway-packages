@@ -11,7 +11,6 @@ import {
 } from "@midwayjs/decorator";
 import * as fs from "fs";
 import * as _ from "lodash";
-import * as os from "os";
 import location from "../util/location";
 
 export type ApiTypes = "add" | "delete" | "update" | "page" | "info" | "list";
@@ -152,12 +151,7 @@ export function CoolController(
         pathArr.reverse();
         pathArr.splice(1, 0, module);
         // 追加模块中间件
-        let path = `${
-          res.path.split(`modules/${module}`)[0]
-        }modules/${module}/config.${_.endsWith(res.path, "ts") ? "ts" : "js"}`;
-        if (os.type() == "Windows_NT") {
-          path = path.substring(1);
-        }
+        let path = `${res.path.split(new RegExp(`modules[/\\\\]${module}`))[0]}modules/${module}/config.${_.endsWith(res.path, "ts") ? "ts" : "js"}`;
         if (fs.existsSync(path)) {
           const config: ModuleConfig = require(path).default();
           routerOptions.middleware = (config.middlewares || []).concat(
