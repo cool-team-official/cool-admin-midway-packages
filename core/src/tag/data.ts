@@ -20,7 +20,20 @@ import * as _ from 'lodash';
 export class CoolUrlTagData {
   data = {};
 
+  /**
+   * 初始化
+   */
   async init() {
+   // 类标记
+   await this.classTag();
+   // 方法标记
+   await this.methodTag();
+  }
+
+  /**
+   * 类标记
+   */
+  async classTag() {
     const tags = listModule(COOL_URL_TAG_KEY);
     for (const controller of tags) {
       // class的标记
@@ -37,18 +50,28 @@ export class CoolUrlTagData {
           }))
         );
       }
-      // 方法标记
-      const listPropertyMetas = listPropertyDataFromClass(COOL_METHOD_TAG_KEY, controller);
-      const requestMetas = getClassMetadata(WEB_ROUTER_KEY, controller);
-      for (const propertyMeta of listPropertyMetas) {
-        const _data = this.data[propertyMeta.tag] || [];
-        const requestMeta = _.find(requestMetas, { method: propertyMeta.key }) 
-        if(requestMeta){
-          this.data[propertyMeta.tag] = _.uniq(_data.concat(
-            controllerOption.prefix + requestMeta.path
-          ))
-        }
-      }
+    }
+  }
+
+  /**
+   * 方法标记
+   */
+  async methodTag() {
+    const controllers = listModule(CONTROLLER_KEY);
+    for (const controller of controllers) {
+      const controllerOption = getClassMetadata(CONTROLLER_KEY, controller);
+       // 方法标记
+       const listPropertyMetas = listPropertyDataFromClass(COOL_METHOD_TAG_KEY, controller);
+       const requestMetas = getClassMetadata(WEB_ROUTER_KEY, controller);
+       for (const propertyMeta of listPropertyMetas) {
+         const _data = this.data[propertyMeta.tag] || [];
+         const requestMeta = _.find(requestMetas, { method: propertyMeta.key }) 
+         if(requestMeta){
+           this.data[propertyMeta.tag] = _.uniq(_data.concat(
+             controllerOption.prefix + requestMeta.path
+           ))
+         }
+       }
     }
   }
 
