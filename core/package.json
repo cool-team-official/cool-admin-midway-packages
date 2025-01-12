@@ -8,8 +8,9 @@
     "cool": "dist/bin/index.js"
   },
   "scripts": {
-    "build": "cross-env midway-bin build -c",
-    "cov": "cross-env midway-bin cov --ts",
+    "build": "mwtsc --cleanOutDir",
+    "test": "cross-env NODE_ENV=unittest jest",
+    "cov": "jest --coverage",
     "lint": "mwts check",
     "lint:fix": "mwts fix"
   },
@@ -31,6 +32,8 @@
     "url": "https://cool-js.com"
   },
   "devDependencies": {
+    "@midwayjs/logger": "^3.4.2",
+    "mwtsc": "^1.15.1",
     "@midwayjs/cli": "2.1.1",
     "@midwayjs/core": "^3.19.0",
     "@midwayjs/koa": "^3.19.2",
