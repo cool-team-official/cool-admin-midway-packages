@@ -31,7 +31,11 @@ class LocationUtil {
         const fileName = site.getFileName();
         // 如果文件名不存在，则跳过
         if (!fileName || !fs.existsSync(fileName)) continue;
-        if (!fileName.includes('/modules/')) continue;
+        if (
+          !fileName.includes('/modules/') &&
+          !fileName.includes('\\modules\\')
+        )
+          continue;
         targetFile = {
           path: fileName,
           line: site.getLineNumber(),
@@ -56,9 +60,12 @@ class LocationUtil {
     const err = new Error();
     const callerfile = err.stack.split('\n')[2].match(/\(([^)]+)\)/)[1];
     const dirPath = path.dirname(callerfile);
-    const nodeModulesIndex = dirPath.indexOf('/node_modules/');
+    const nodeModulesIndex =
+      dirPath.indexOf('/node_modules/') !== -1
+        ? dirPath.indexOf('/node_modules/')
+        : dirPath.indexOf('\\node_modules\\');
     if (nodeModulesIndex !== -1) {
-      return dirPath.substring(0, nodeModulesIndex) + '/dist';
+      return path.join(dirPath.substring(0, nodeModulesIndex), 'dist');
     }
     return dirPath;
   }

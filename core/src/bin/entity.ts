@@ -17,7 +17,10 @@ export function generateEntitiesFile() {
 
   // 生成导入语句和导出数组
   const imports = entityFiles.map((file, index) => {
-    const relativePath = path.relative(path.dirname(OUTPUT_FILE), file);
+    const relativePath = path
+      .relative(path.dirname(OUTPUT_FILE), file)
+      .split(path.sep)
+      .join('/');
     return `import * as entity${index} from './${relativePath.replace(
       /\.ts$/,
       ''
