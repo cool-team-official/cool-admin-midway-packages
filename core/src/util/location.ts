@@ -1,10 +1,13 @@
+import { Provide, Scope, ScopeEnum } from '@midwayjs/core';
 import * as fs from 'fs';
 import * as path from 'path';
 
 /**
  * Location 工具类
  */
-class LocationUtil {
+@Provide()
+@Scope(ScopeEnum.Singleton)
+export class LocationUtil {
   private locationCache = new Map<string, any>();
 
   /**
@@ -56,7 +59,7 @@ class LocationUtil {
    * 获取使用此包的项目的真实根目录路径
    * @returns 项目根目录的绝对路径
    */
-  getRootPath(): string {
+  getRunPath(): string {
     const err = new Error();
     const callerfile = err.stack.split('\n')[2].match(/\(([^)]+)\)/)[1];
     const dirPath = path.dirname(callerfile);

@@ -112,7 +112,7 @@ export class CoolModuleImport {
    */
   checkFileExist(module: string) {
     const importLockPath = path.join(
-      `${location.getRootPath()}`,
+      `${location.getRunPath()}`,
       '..',
       'lock',
       'db'
@@ -136,7 +136,7 @@ export class CoolModuleImport {
     // 计算耗时
     const startTime = new Date().getTime();
     // 模块路径
-    const modulePath = `${location.getRootPath()}/modules/${module}`;
+    const modulePath = `${location.getRunPath()}/modules/${module}`;
     // 数据路径
     const dataPath = `${modulePath}/db.json`;
     // 判断文件是否存在

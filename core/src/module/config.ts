@@ -32,7 +32,7 @@ export class CoolModuleConfig {
   async init() {
     const modules = [];
     // 模块路径
-    const moduleBasePath = `${location.getRootPath()}/modules/`;
+    const moduleBasePath = `${location.getRunPath()}/modules/`;
 
     if (!fs.existsSync(moduleBasePath)) {
       return;
@@ -49,7 +49,6 @@ export class CoolModuleConfig {
         const configPath = fs.existsSync(`${modulePath}/config.ts`)
           ? `${modulePath}/config.ts`
           : `${modulePath}/config.js`;
-        console.log('configPath', configPath);
         if (fs.existsSync(configPath)) {
           const moduleConfig: ModuleConfig = require(configPath).default({
             app: this.app,

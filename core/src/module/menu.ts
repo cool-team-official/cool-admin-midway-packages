@@ -87,7 +87,7 @@ export class CoolModuleMenu {
    */
   async importMenu(module: string, metadatas, lockPath?: string) {
     // 模块路径
-    const modulePath = `${location.getRootPath()}/modules/${module}`;
+    const modulePath = `${location.getRunPath()}/modules/${module}`;
     // json 路径
     const menuPath = `${modulePath}/menu.json`;
     // 导入
@@ -139,7 +139,7 @@ export class CoolModuleMenu {
    */
   checkFileExist(module: string) {
     const importLockPath = path.join(
-      `${location.getRootPath()}`,
+      `${location.getRunPath()}`,
       '..',
       'lock',
       'menu'

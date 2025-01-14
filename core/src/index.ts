@@ -50,3 +50,4 @@ export * from './module/menu';
 export * from './interface';
 export * from './util/func';
 export * from './constant/global';
+export * from './util/location';
