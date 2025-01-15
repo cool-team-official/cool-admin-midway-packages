@@ -43,3 +43,14 @@ ${exportEntities}
   fs.writeFileSync(OUTPUT_FILE, fileContent);
   console.log('Entities file generated successfully!');
 }
+
+/**
+ * 清空 entities.ts 文件
+ */
+export function clearEntitiesFile() {
+  const emptyContent = `// 自动生成的文件，请勿手动修改
+export const entities = [];
+`;
+  fs.writeFileSync(OUTPUT_FILE, emptyContent);
+  console.log('Entities file cleared successfully!');
+}

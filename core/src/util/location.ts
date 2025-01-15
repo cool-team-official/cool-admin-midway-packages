@@ -1,4 +1,4 @@
-import { Provide, Scope, ScopeEnum } from '@midwayjs/core';
+import { Init, Provide, Scope, ScopeEnum } from '@midwayjs/core';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -9,6 +9,21 @@ import * as path from 'path';
 @Scope(ScopeEnum.Singleton)
 export class LocationUtil {
   private locationCache = new Map<string, any>();
+
+  distPath: string;
+
+  @Init()
+  async init() {
+    this.distPath = this.getRunPath();
+  }
+
+  /**
+   * 获取编译后的文件路径
+   * @returns 编译后的文件路径
+   */
+  getDistPath(): string {
+    return this.distPath;
+  }
 
   /**
    * 获取目标类的定义位置

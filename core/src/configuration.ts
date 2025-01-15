@@ -2,9 +2,11 @@ import {
   App,
   ILifeCycle,
   ILogger,
+  IMidwayApplication,
   IMidwayContainer,
   Inject,
   Logger,
+  MidwayWebRouterService,
 } from '@midwayjs/core';
 import { Configuration } from '@midwayjs/core';
 import * as DefaultConfig from './config/config.default';
@@ -18,6 +20,7 @@ import { CoolEps } from './rest/eps';
 import { CoolDecorator } from './decorator';
 import * as cache from '@midwayjs/cache-manager';
 import * as _cache from '@midwayjs/cache';
+import { LocationUtil } from './util/location';
 
 @Configuration({
   namespace: 'cool',
@@ -38,6 +41,9 @@ export class CoolConfiguration implements ILifeCycle {
   @Inject()
   coolEventManager: CoolEventManager;
 
+  @Inject()
+  webRouterService: MidwayWebRouterService;
+
   async onReady(container: IMidwayContainer) {
     this.coolEventManager.emit('onReady');
     // 处理模块配置
@@ -48,17 +54,25 @@ export class CoolConfiguration implements ILifeCycle {
     this.app.useFilter([CoolExceptionFilter]);
     // 装饰器
     await container.getAsync(CoolDecorator);
-
-    // 缓存设置为全局
-    // global["COOL-CACHE"] = await container.getAsync(CacheManager);
-    // // 清除 location
-    // setTimeout(() => {
-    //   location.clean();
-    //   this.coreLogger.info("\x1B[36m [cool:core] location clean \x1B[0m");
-    // }, 10000);
+    // 注册一个路由，用于处理静态资源
+    this.webRouterService.addRouter(
+      async ctx => {
+        ctx.redirect('/public/index.html');
+      },
+      {
+        url: '/',
+        requestMethod: 'GET',
+      }
+    );
   }
 
-  async onConfigLoad() {}
+  async onConfigLoad(container: IMidwayContainer, app: IMidwayApplication) {
+    await container.getAsync(LocationUtil);
+    // 替换app的getBaseDir
+    app.getBaseDir = () => {
+      return container.get(LocationUtil).getDistPath();
+    };
+  }
 
   async onServerReady(container: IMidwayContainer) {
     // 事件
