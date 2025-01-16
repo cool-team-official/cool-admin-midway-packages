@@ -1,5 +1,7 @@
 import {
+  ALL,
   App,
+  Config,
   ILifeCycle,
   ILogger,
   IMidwayApplication,
@@ -41,6 +43,9 @@ export class CoolConfiguration implements ILifeCycle {
   @Inject()
   coolEventManager: CoolEventManager;
 
+  @Config(ALL)
+  allConfig;
+
   @Inject()
   webRouterService: MidwayWebRouterService;
 
@@ -57,7 +62,7 @@ export class CoolConfiguration implements ILifeCycle {
     // 注册一个路由，用于处理静态资源
     this.webRouterService.addRouter(
       async ctx => {
-        ctx.redirect('/public/index.html');
+        ctx.redirect('/index.html');
       },
       {
         url: '/',

@@ -10,7 +10,7 @@ export default {
     // 是否自动导入模块菜单
     initMenu: true,
     // 判断是否初始化的方式
-    initJudge: 'file',
+    initJudge: 'db',
     // crud配置
     crud: {
       // 软删除
