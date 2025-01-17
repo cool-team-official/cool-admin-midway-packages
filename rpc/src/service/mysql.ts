@@ -1,25 +1,27 @@
-import { Init, Provide, Inject, App, Config, ALL } from '@midwayjs/core';
+import { Init, Provide, Inject, Config } from '@midwayjs/core';
 import { Scope, ScopeEnum } from '@midwayjs/core';
-import { CoolValidateException } from '../exception/validate';
-import { ERRINFO, EVENT } from '../constant/global';
+import {
+  CoolValidateException,
+  ERRINFO,
+  EVENT,
+  QueryOp,
+  CoolEventManager,
+} from '@cool-midway/core';
 import { Application, Context } from '@midwayjs/koa';
 import * as SqlString from 'sqlstring';
-import { CoolConfig } from '../interface';
 import { TypeORMDataSourceManager } from '@midwayjs/typeorm';
-import { Brackets, In, Repository, SelectQueryBuilder } from 'typeorm';
-import { QueryOp } from '../decorator/controller';
+import { Brackets, Equal, In, Repository, SelectQueryBuilder } from 'typeorm';
 import * as _ from 'lodash';
-import { CoolEventManager } from '../event';
-import * as moment from 'moment';
+
 /**
  * 服务基类
  */
 @Provide()
 @Scope(ScopeEnum.Request, { allowDowngrade: true })
-export abstract class BaseSqliteService {
+export abstract class BaseMysqlService {
   // 分页配置
   @Config('cool')
-  private _coolConfig: CoolConfig;
+  private _coolConfig;
 
   // 模型
   entity: Repository<any>;
@@ -32,9 +34,6 @@ export abstract class BaseSqliteService {
   @Inject()
   coolEventManager: CoolEventManager;
 
-  @Config(ALL)
-  allConfig: any;
-
   // 设置模型
   setEntity(entity: any) {
     this.entity = entity;
@@ -45,7 +44,6 @@ export abstract class BaseSqliteService {
     this.baseCtx = ctx;
   }
 
-  @App()
   baseApp: Application;
 
   // 设置应用对象
@@ -72,23 +70,9 @@ export abstract class BaseSqliteService {
     let rSql = false;
     if (condition || condition === 0) {
       rSql = true;
-      for (let i = 0; i < params.length; i++) {
-        const param = params[i];
-        if (param instanceof Array) {
-          // 将这个? 替换成 $1,$2,$3
-          const replaceStr = [];
-          for (let j = 0; j < param.length; j++) {
-            replaceStr.push('$' + (this.sqlParams.length + j + 1));
-          }
-          this.sqlParams = this.sqlParams.concat(...params);
-          sql = sql.replace('?', replaceStr.join(','));
-        } else {
-          sql = sql.replace('?', '$' + (this.sqlParams.length + 1));
-          this.sqlParams.push(param);
-        }
-      }
+      this.sqlParams = this.sqlParams.concat(params);
     }
-    return (rSql ? sql : '').replace(/\$\d+/g, '?');
+    return rSql ? sql : '';
   }
 
   /**
@@ -131,27 +115,13 @@ export abstract class BaseSqliteService {
     if (_.isEmpty(params)) {
       params = this.sqlParams;
     }
-    const newParams = [];
-    // sql没处理过?的情况下
-    for (const item of params) {
-      // 如果是数组，将这个? 替换成 $1,$2,$3
-      if (item instanceof Array) {
-        const replaceStr = [];
-        for (let i = 0; i < item.length; i++) {
-          replaceStr.push('$' + (newParams.length + i + 1));
-        }
-        newParams.push(...item);
-        sql = sql.replace('?', replaceStr.join(','));
-      } else {
-        sql = sql.replace('?', '$' + (newParams.length + 1));
-        newParams.push(item);
-      }
-    }
+    let newParams = [];
+    newParams = newParams.concat(params);
     this.sqlParams = [];
-    return await this.getOrmManager(connectionName).query(
-      sql.replace(/\$\d+/g, '?'),
-      newParams || []
-    );
+    for (const param of newParams) {
+      SqlString.escape(param);
+    }
+    return await this.getOrmManager(connectionName).query(sql, newParams || []);
   }
 
   /**
@@ -218,30 +188,25 @@ export abstract class BaseSqliteService {
       isExport = false,
       maxExportLimit,
     } = query;
-    sql = `SELECT * FROM (${sql}) a`;
     if (order && sort && autoSort) {
       if (!(await this.paramSafetyCheck(order + sort))) {
         throw new CoolValidateException('非法传参~');
       }
-      sql += ` ORDER BY a.${SqlString.escapeId(order)} ${this.checkSort(sort)}`;
+      sql += ` ORDER BY ${SqlString.escapeId(order)} ${this.checkSort(sort)}`;
     }
-    let cutParams = 0;
     if (isExport && maxExportLimit > 0) {
       this.sqlParams.push(parseInt(maxExportLimit));
-      cutParams = 1;
       sql += ' LIMIT ? ';
     }
     if (!isExport) {
       this.sqlParams.push((page - 1) * size);
       this.sqlParams.push(parseInt(size));
-      cutParams = 2;
       sql += ' LIMIT ?,? ';
     }
 
     let params = [];
     params = params.concat(this.sqlParams);
     const result = await this.nativeQuery(sql, params, connectionName);
-    params = params.slice(0, -cutParams);
     const countResult = await this.nativeQuery(
       this.getCountSql(sql),
       params,
@@ -279,7 +244,7 @@ export abstract class BaseSqliteService {
     if (!id) {
       throw new CoolValidateException(ERRINFO.NOID);
     }
-    const info = await this.entity.findOneBy({ id });
+    const info = await this.entity.findOneBy({ id: Equal(id) });
     if (info && infoIgnoreProperty) {
       for (const property of infoIgnoreProperty) {
         delete info[property];
@@ -328,27 +293,6 @@ export abstract class BaseSqliteService {
   }
 
   /**
-   * 根据时区偏移获取日期
-   * @param timezone 时区偏移，格式如 '+08:00', '-07:00'
-   * @returns Date
-   */
-  getDateWithTimezone(): Date {
-    const timezone =
-      this.allConfig.typeorm?.dataSource?.default?.timezone || '+08:00';
-    const match = timezone.match(/^([+-])(\d{2}):(\d{2})$/);
-    if (!match) {
-      throw new CoolValidateException('时区格式错误，应为 "+08:00" 这样的格式');
-    }
-
-    const [_, sign, hours, minutes] = match;
-    const offsetInMinutes =
-      (parseInt(hours) * 60 + parseInt(minutes)) * (sign === '+' ? 1 : -1);
-    const date = new Date();
-    const utc = date.getTime() + date.getTimezoneOffset() * 60000;
-    return new Date(utc + offsetInMinutes * 60000);
-  }
-
-  /**
    * 新增|修改
    * @param param 数据
    */
@@ -358,7 +302,6 @@ export abstract class BaseSqliteService {
     // 判断是否是批量操作
     if (param instanceof Array) {
       param.forEach(item => {
-        // 设置时区+08:00
         item.updateTime = new Date();
         item.createTime = new Date();
       });
@@ -379,8 +322,8 @@ export abstract class BaseSqliteService {
           : await this.entity.save(param);
       }
       if (type == 'add') {
-        param.createTime = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
-        param.updateTime = moment(new Date()).format('YYYY-MM-DD HH:mm:ss');
+        param.createTime = new Date();
+        param.updateTime = new Date();
         upsert == 'normal'
           ? await this.entity.insert(param)
           : await this.entity.save(param);
@@ -504,7 +447,7 @@ export abstract class BaseSqliteService {
           }
           // 单表字段无别名的情况下操作
           if (typeof key === 'string') {
-            if (query[key] || query[key] == 0) {
+            if (query[key] || query[key] === 0) {
               c[key] = query[key];
               const eq = query[key] instanceof Array ? 'in' : '=';
               if (eq === 'in') {
@@ -512,10 +455,10 @@ export abstract class BaseSqliteService {
               } else {
                 find.andWhere(`${key} ${eq} :${key}`, c);
               }
-              //   this.sqlParams.push(query[key]);
+              this.sqlParams.push(query[key]);
             }
           } else {
-            if (query[key.requestParam] || query[key.requestParam] == 0) {
+            if (query[key.requestParam] || query[key.requestParam] === 0) {
               c[key.column] = query[key.requestParam];
               const eq = query[key.requestParam] instanceof Array ? 'in' : '=';
               if (eq === 'in') {
@@ -523,7 +466,7 @@ export abstract class BaseSqliteService {
               } else {
                 find.andWhere(`${key.column} ${eq} :${key.column}`, c);
               }
-              //   this.sqlParams.push(query[key.requestParam]);
+              this.sqlParams.push(query[key.requestParam]);
             }
           }
         }

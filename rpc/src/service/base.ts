@@ -1,16 +1,18 @@
-import { App, Config, Init, Inject, Provide } from '@midwayjs/core';
+import { Config, Init, Inject, Provide } from '@midwayjs/core';
 import { Scope, ScopeEnum } from '@midwayjs/core';
 import { BaseMysqlService } from './mysql';
 import { BasePgService } from './postgres';
-import { CoolValidateException } from '../exception/validate';
-import { ERRINFO } from '../constant/global';
+import {
+  CoolValidateException,
+  ERRINFO,
+  QueryOp,
+  CoolEventManager,
+  CoolCoreException,
+} from '@cool-midway/core';
 import { Application, Context } from '@midwayjs/koa';
 import { TypeORMDataSourceManager } from '@midwayjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { QueryOp } from '../decorator/controller';
 import * as _ from 'lodash';
-import { CoolEventManager } from '../event';
-import { CoolCoreException } from '../exception/core';
 import { BaseSqliteService } from './sqlite';
 
 /**
@@ -18,7 +20,7 @@ import { BaseSqliteService } from './sqlite';
  */
 @Provide()
 @Scope(ScopeEnum.Request, { allowDowngrade: true })
-export abstract class BaseService {
+export abstract class BaseRpcService {
   // mysql的基类
   @Inject()
   baseMysqlService: BaseMysqlService;
@@ -43,6 +45,8 @@ export abstract class BaseService {
 
   protected sqlParams;
 
+  protected curdOption;
+
   @Inject()
   typeORMDataSourceManager: TypeORMDataSourceManager;
 
@@ -52,8 +56,16 @@ export abstract class BaseService {
   @Inject('ctx')
   baseCtx: Context;
 
-  @App()
   baseApp: Application;
+
+  // 设置模型
+  setModel(entity: any) {
+    this.entity = entity;
+  }
+
+  setCurdOption(curdOption) {
+    this.curdOption = curdOption;
+  }
 
   @Init()
   async init() {
@@ -82,7 +94,7 @@ export abstract class BaseService {
   }
 
   // 设置应用对象
-  setApp(app: Application) {
+  setApp(app) {
     this.baseApp = app;
     this.service.setApp(app);
   }

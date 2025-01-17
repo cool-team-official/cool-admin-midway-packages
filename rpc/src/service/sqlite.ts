@@ -1,15 +1,17 @@
-import { Init, Provide, Inject, App, Config, ALL } from '@midwayjs/core';
+import { Init, Provide, Inject, Config, ALL } from '@midwayjs/core';
 import { Scope, ScopeEnum } from '@midwayjs/core';
-import { CoolValidateException } from '../exception/validate';
-import { ERRINFO, EVENT } from '../constant/global';
+import {
+  CoolValidateException,
+  ERRINFO,
+  EVENT,
+  QueryOp,
+  CoolEventManager,
+} from '@cool-midway/core';
 import { Application, Context } from '@midwayjs/koa';
 import * as SqlString from 'sqlstring';
-import { CoolConfig } from '../interface';
 import { TypeORMDataSourceManager } from '@midwayjs/typeorm';
 import { Brackets, In, Repository, SelectQueryBuilder } from 'typeorm';
-import { QueryOp } from '../decorator/controller';
 import * as _ from 'lodash';
-import { CoolEventManager } from '../event';
 import * as moment from 'moment';
 /**
  * 服务基类
@@ -19,7 +21,7 @@ import * as moment from 'moment';
 export abstract class BaseSqliteService {
   // 分页配置
   @Config('cool')
-  private _coolConfig: CoolConfig;
+  private _coolConfig;
 
   // 模型
   entity: Repository<any>;
@@ -45,7 +47,6 @@ export abstract class BaseSqliteService {
     this.baseCtx = ctx;
   }
 
-  @App()
   baseApp: Application;
 
   // 设置应用对象
