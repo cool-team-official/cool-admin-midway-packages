@@ -2462,8 +2462,8 @@ export class SelectQueryBuilder extends QueryBuilder {
         else {
             let andConditions = [];
             for (let key in where) {
-                if (where[key] === undefined || where[key] === null)
-                    continue;
+                // if (where[key] === undefined || where[key] === null)
+                //     continue;
                 const propertyPath = embedPrefix ? embedPrefix + "." + key : key;
                 const column = metadata.findColumnWithPropertyPathStrict(propertyPath);
                 const embed = metadata.findEmbeddedWithPropertyPath(propertyPath);
@@ -2518,7 +2518,11 @@ export class SelectQueryBuilder extends QueryBuilder {
                     //     const parameter = this.connection.driver.createParameter(parameterName, parameterIndex - 1);
                     //     andConditions.push(`${aliasPath} = ${parameter}`);
                     // }
-                    andConditions.push(this.createWhereConditionExpression(this.getWherePredicateCondition(aliasPath, parameterValue)));
+                    if (parameterValue === undefined || parameterValue === null) {
+                        andConditions.push(`${aliasPath} IS NULL`);
+                    }else{
+                        andConditions.push(this.createWhereConditionExpression(this.getWherePredicateCondition(aliasPath, parameterValue)));
+                    }
                     // this.conditions.push(`${alias}.${propertyPath} = :${paramName}`);
                     // this.expressionMap.parameters[paramName] = where[key]; // todo: handle functions and other edge cases
                 }
