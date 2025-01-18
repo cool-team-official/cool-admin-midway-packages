@@ -11,6 +11,7 @@ const UpdateValuesMissingError_1 = require("../error/UpdateValuesMissingError");
 const error_1 = require("../error");
 const DriverUtils_1 = require("../driver/DriverUtils");
 const InstanceChecker_1 = require("../util/InstanceChecker");
+const Broadcaster_1 = require("../subscriber/Broadcaster");
 /**
  * Allows to build complex sql queries in a fashion way and execute those queries.
  */
@@ -22,6 +23,8 @@ class SoftDeleteQueryBuilder extends QueryBuilder_1.QueryBuilder {
         super(connectionOrQueryBuilder, queryRunner);
         this["@instanceof"] = Symbol.for("SoftDeleteQueryBuilder");
         this.expressionMap.aliasNamePrefixingEnabled = false;
+        this.broadcaster = new Broadcaster_1.Broadcaster(this.queryRunner);
+        this.broadcaster.broadcastAfterQueryBuilder(this, "soft-delete");
     }
     // -------------------------------------------------------------------------
     // Public Implemented Methods

@@ -27,6 +27,7 @@ const EntityPropertyNotFoundError_1 = require("../error/EntityPropertyNotFoundEr
 const InstanceChecker_1 = require("../util/InstanceChecker");
 const FindOperator_1 = require("../find-options/FindOperator");
 const ApplyValueTransformers_1 = require("../util/ApplyValueTransformers");
+const Broadcaster_1 = require("../subscriber/Broadcaster");
 /**
  * Allows to build complex sql queries in a fashion way and execute those queries.
  */
@@ -40,7 +41,10 @@ class SelectQueryBuilder extends QueryBuilder_1.QueryBuilder {
         this.conditions = "";
         this.orderBys = [];
         this.relationMetadatas = [];
+        this.broadcaster = new Broadcaster_1.Broadcaster(this.queryRunner);
+        this.broadcaster.broadcastAfterQueryBuilder(this, "select");
     }
+   
     // -------------------------------------------------------------------------
     // Public Implemented Methods
     // -------------------------------------------------------------------------

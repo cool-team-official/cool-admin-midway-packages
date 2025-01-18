@@ -8,10 +8,31 @@ import { LoadEvent } from "./event/LoadEvent";
 import { SoftRemoveEvent } from "./event/SoftRemoveEvent";
 import { RecoverEvent } from "./event/RecoverEvent";
 import { AfterQueryEvent, BeforeQueryEvent } from "./event/QueryEvent";
+import { SelectQueryBuilder } from "../query-builder/SelectQueryBuilder";
+import { InsertQueryBuilder } from "../query-builder/InsertQueryBuilder";
+import { UpdateQueryBuilder } from "../query-builder/UpdateQueryBuilder";
+import { DeleteQueryBuilder } from "../query-builder/DeleteQueryBuilder";
+import { SoftDeleteQueryBuilder } from "../query-builder/SoftDeleteQueryBuilder";
 /**
  * Classes that implement this interface are subscribers that subscribe for the specific events in the ORM.
  */
 export interface EntitySubscriberInterface<Entity = any> {
+    /**
+     * Called after SelectQueryBuilder is built.
+     */
+    afterSelectQueryBuilder?(queryBuilder: SelectQueryBuilder<any>): void;
+    /**
+     * Called after InsertQueryBuilder is built.
+     */
+    afterInsertQueryBuilder?(queryBuilder: InsertQueryBuilder<any>): void;
+    /**
+     * Called after UpdateQueryBuilder is built.
+     */
+    afterUpdateQueryBuilder?(queryBuilder: UpdateQueryBuilder<any>): void;
+    /**
+     * Called after DeleteQueryBuilder is built.
+     */
+    afterDeleteQueryBuilder?(queryBuilder: DeleteQueryBuilder<any>): void;
     /**
      * Returns the class of the entity to which events will listen.
      * If this method is omitted, then subscriber will listen to events of all entities.

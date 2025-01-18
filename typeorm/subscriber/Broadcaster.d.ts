@@ -1,6 +1,10 @@
 import { EntitySubscriberInterface } from "./EntitySubscriberInterface";
 import { ObjectLiteral } from "../common/ObjectLiteral";
-import { QueryRunner } from "../query-runner/QueryRunner";
+import { SelectQueryBuilder } from "../query-builder/SelectQueryBuilder";
+import { InsertQueryBuilder } from "../query-builder/InsertQueryBuilder";
+import { UpdateQueryBuilder } from "../query-builder/UpdateQueryBuilder";
+import { DeleteQueryBuilder } from "../query-builder/DeleteQueryBuilder";
+import { SoftDeleteQueryBuilder } from "../query-builder/SoftDeleteQueryBuilder";
 import { EntityMetadata } from "../metadata/EntityMetadata";
 import { BroadcasterResult } from "./BroadcasterResult";
 import { ColumnMetadata } from "../metadata/ColumnMetadata";
@@ -32,7 +36,26 @@ interface BroadcasterEvents {
 export declare class Broadcaster {
     private queryRunner;
     constructor(queryRunner: QueryRunner);
-    broadcast<U extends keyof BroadcasterEvents>(event: U, ...args: Parameters<BroadcasterEvents[U]>): Promise<void>;
+    /**
+     * Broadcasts "AFTER_QUERY_BUILDER" event.
+     */
+    broadcastAfterQueryBuilder(
+        queryBuilder: 
+            | SelectQueryBuilder<any>
+            | InsertQueryBuilder<any>
+            | UpdateQueryBuilder<any>
+            | DeleteQueryBuilder<any>
+            | SoftDeleteQueryBuilder<any>,
+        type: "select" | "insert" | "update" | "delete" | "soft-delete"
+    ): void;
+    /**
+     * Broadcasts "BEFORE_QUERY" event.
+     */
+    broadcastBeforeQuery(query: string, parameters: undefined | any[]): Promise<void>;
+    /**
+     * Broadcasts "AFTER_QUERY" event.
+     */
+    broadcastAfterQuery(query: string, parameters: undefined | any[], success: boolean, executionTime: undefined | number, rawResults: undefined | any, error: undefined | any): Promise<void>;
     /**
      * Broadcasts "BEFORE_INSERT" event.
      * Before insert event is executed before entity is being inserted to the database for the first time.

@@ -6,6 +6,7 @@ import { TypeORMError } from "../error";
 import { EntityPropertyNotFoundError } from "../error/EntityPropertyNotFoundError";
 import { InstanceChecker } from "../util/InstanceChecker";
 import { escapeRegExp } from "../util/escapeRegExp";
+import { Broadcaster } from "../../subscriber/Broadcaster";
 // todo: completely cover query builder with tests
 // todo: entityOrProperty can be target name. implement proper behaviour if it is.
 // todo: check in persistment if id exist on object and throw exception (can be in partial selection?)
@@ -42,6 +43,7 @@ export class QueryBuilder {
             this.queryRunner = connectionOrQueryBuilder.queryRunner;
             this.expressionMap = connectionOrQueryBuilder.expressionMap.clone();
         }
+        this.broadcaster = new Broadcaster(this.queryRunner);
     }
     static registerQueryBuilderClass(name, factory) {
         QueryBuilder.queryBuilderRegistry[name] = factory;
@@ -75,7 +77,9 @@ export class QueryBuilder {
         }
         if (InstanceChecker.isSelectQueryBuilder(this))
             return this;
-        return QueryBuilder.queryBuilderRegistry["SelectQueryBuilder"](this);
+        const selectQueryBuilder = QueryBuilder.queryBuilderRegistry["SelectQueryBuilder"](this);
+        this.broadcaster.broadcastAfterQueryBuilder(selectQueryBuilder, "select");
+        return selectQueryBuilder;
     }
     /**
      * Creates INSERT query.
@@ -84,7 +88,9 @@ export class QueryBuilder {
         this.expressionMap.queryType = "insert";
         if (InstanceChecker.isInsertQueryBuilder(this))
             return this;
-        return QueryBuilder.queryBuilderRegistry["InsertQueryBuilder"](this);
+        const insertQueryBuilder = QueryBuilder.queryBuilderRegistry["InsertQueryBuilder"](this);
+        this.broadcaster.broadcastAfterQueryBuilder(insertQueryBuilder, "insert");
+        return insertQueryBuilder;
     }
     /**
      * Creates UPDATE query and applies given update values.
@@ -105,7 +111,9 @@ export class QueryBuilder {
         this.expressionMap.valuesSet = updateSet;
         if (InstanceChecker.isUpdateQueryBuilder(this))
             return this;
-        return QueryBuilder.queryBuilderRegistry["UpdateQueryBuilder"](this);
+        const updateQueryBuilder = QueryBuilder.queryBuilderRegistry["UpdateQueryBuilder"](this);
+        this.broadcaster.broadcastAfterQueryBuilder(updateQueryBuilder, "update");
+        return updateQueryBuilder;
     }
     /**
      * Creates DELETE query.
@@ -114,19 +122,25 @@ export class QueryBuilder {
         this.expressionMap.queryType = "delete";
         if (InstanceChecker.isDeleteQueryBuilder(this))
             return this;
-        return QueryBuilder.queryBuilderRegistry["DeleteQueryBuilder"](this);
+        const deleteQueryBuilder = QueryBuilder.queryBuilderRegistry["DeleteQueryBuilder"](this);
+        this.broadcaster.broadcastAfterQueryBuilder(deleteQueryBuilder, "delete");
+        return deleteQueryBuilder;
     }
     softDelete() {
         this.expressionMap.queryType = "soft-delete";
         if (InstanceChecker.isSoftDeleteQueryBuilder(this))
             return this;
-        return QueryBuilder.queryBuilderRegistry["SoftDeleteQueryBuilder"](this);
+        const softDeleteQueryBuilder = QueryBuilder.queryBuilderRegistry["SoftDeleteQueryBuilder"](this);
+        this.broadcaster.broadcastAfterQueryBuilder(softDeleteQueryBuilder, "soft-delete");
+        return softDeleteQueryBuilder;
     }
     restore() {
         this.expressionMap.queryType = "restore";
         if (InstanceChecker.isSoftDeleteQueryBuilder(this))
             return this;
-        return QueryBuilder.queryBuilderRegistry["SoftDeleteQueryBuilder"](this);
+        const restoreQueryBuilder = QueryBuilder.queryBuilderRegistry["RestoreQueryBuilder"](this);
+        this.broadcaster.broadcastAfterQueryBuilder(restoreQueryBuilder, "restore");
+        return restoreQueryBuilder;
     }
     /**
      * Sets entity's relation with which this query builder gonna work.
@@ -144,7 +158,9 @@ export class QueryBuilder {
         }
         if (InstanceChecker.isRelationQueryBuilder(this))
             return this;
-        return QueryBuilder.queryBuilderRegistry["RelationQueryBuilder"](this);
+        const relationQueryBuilder = QueryBuilder.queryBuilderRegistry["RelationQueryBuilder"](this);
+        this.broadcaster.broadcastAfterQueryBuilder(relationQueryBuilder, "relation");
+        return relationQueryBuilder;
     }
     /**
      * Checks if given relation or relations exist in the entity.

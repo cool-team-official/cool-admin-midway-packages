@@ -21,6 +21,8 @@ class UpdateQueryBuilder extends QueryBuilder_1.QueryBuilder {
         super(connectionOrQueryBuilder, queryRunner);
         this["@instanceof"] = Symbol.for("UpdateQueryBuilder");
         this.expressionMap.aliasNamePrefixingEnabled = false;
+        this.broadcaster = new Broadcaster_1.Broadcaster(this.queryRunner);
+        this.broadcaster.broadcastAfterQueryBuilder(this, "update");
     }
     // -------------------------------------------------------------------------
     // Public Implemented Methods

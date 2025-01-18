@@ -5,6 +5,8 @@ const QueryBuilder_1 = require("./QueryBuilder");
 const DeleteResult_1 = require("./result/DeleteResult");
 const ReturningStatementNotSupportedError_1 = require("../error/ReturningStatementNotSupportedError");
 const InstanceChecker_1 = require("../util/InstanceChecker");
+const Broadcaster_1 = require("../subscriber/Broadcaster");
+
 /**
  * Allows to build complex sql queries in a fashion way and execute those queries.
  */
@@ -16,6 +18,8 @@ class DeleteQueryBuilder extends QueryBuilder_1.QueryBuilder {
         super(connectionOrQueryBuilder, queryRunner);
         this["@instanceof"] = Symbol.for("DeleteQueryBuilder");
         this.expressionMap.aliasNamePrefixingEnabled = false;
+        this.broadcaster = new Broadcaster_1.Broadcaster(this.queryRunner);
+        this.broadcaster.broadcastAfterQueryBuilder(this, "delete");
     }
     // -------------------------------------------------------------------------
     // Public Implemented Methods

@@ -26,6 +26,34 @@ class Broadcaster {
         await result.wait();
     }
     /**
+     * Broadcasts "AFTER_QUERY_BUILDER" event.
+     */
+     broadcastAfterQueryBuilder(queryBuilder, type) {
+        const subscribers = queryBuilder?.connection?.subscribers;
+        if (!subscribers || !subscribers.length) return;
+        for (const subscriber of subscribers) {
+           try{
+            if (type == "select" && subscriber.afterSelectQueryBuilder) {
+                subscriber.afterSelectQueryBuilder(queryBuilder);
+            }
+            if (type == "insert" && subscriber.afterInsertQueryBuilder) {
+                subscriber.afterInsertQueryBuilder(queryBuilder);
+            }
+            if (type == "update" && subscriber.afterUpdateQueryBuilder) {
+                subscriber.afterUpdateQueryBuilder(queryBuilder);
+            }
+            if (type == "delete" && subscriber.afterDeleteQueryBuilder) {
+                subscriber.afterDeleteQueryBuilder(queryBuilder);
+            }
+            if (type == "soft-delete" && subscriber.afterDeleteQueryBuilder) {
+                subscriber.afterDeleteQueryBuilder(queryBuilder);
+            }
+           }catch(e){
+              continue;
+           }
+        }
+    }
+    /**
      * Broadcasts "BEFORE_INSERT" event.
      * Before insert event is executed before entity is being inserted to the database for the first time.
      * All subscribers and entity listeners who listened to this event will be executed at this point.

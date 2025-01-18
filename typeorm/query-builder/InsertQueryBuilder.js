@@ -12,6 +12,7 @@ const ObjectUtils_1 = require("../util/ObjectUtils");
 const QueryBuilder_1 = require("./QueryBuilder");
 const InsertResult_1 = require("./result/InsertResult");
 const ReturningResultsEntityUpdator_1 = require("./ReturningResultsEntityUpdator");
+const Broadcaster_1 = require("../subscriber/Broadcaster");
 /**
  * Allows to build complex sql queries in a fashion way and execute those queries.
  */
@@ -19,6 +20,8 @@ class InsertQueryBuilder extends QueryBuilder_1.QueryBuilder {
     constructor() {
         super(...arguments);
         this["@instanceof"] = Symbol.for("InsertQueryBuilder");
+        this.broadcaster = new Broadcaster_1.Broadcaster(this.queryRunner);
+        this.broadcaster.broadcastAfterQueryBuilder(this, "insert");
     }
     // -------------------------------------------------------------------------
     // Public Implemented Methods
