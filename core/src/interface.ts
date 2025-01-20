@@ -26,6 +26,79 @@ export interface CoolConfig {
   initDB?: boolean;
   /** Eps */
   eps?: boolean;
+  /** 开启多租户 */
+  tenant?: {
+    /** 是否开启 */
+    enable: boolean;
+    // 需要过滤多租户的url
+    urls: string[];
+  };
+  /** 开启多语言 */
+  i18n?: {
+    /** 是否开启 */
+    enable: boolean;
+    /** 语言 */
+    languages: Array<
+      | 'zh-cn'
+      | 'en'
+      | 'az'
+      | 'de'
+      | 'pt'
+      | 'es'
+      | 'da'
+      | 'fr'
+      | 'nb-NO'
+      | 'zh-tw'
+      | 'it'
+      | 'ko'
+      | 'ja'
+      | 'nl'
+      | 'vi'
+      | 'ru'
+      | 'tr'
+      | 'pt-br'
+      | 'fa'
+      | 'th'
+      | 'id'
+      | 'bg'
+      | 'pa'
+      | 'pl'
+      | 'fi'
+      | 'sv'
+      | 'el'
+      | 'sk'
+      | 'ca'
+      | 'cs'
+      | 'uk'
+      | 'tk'
+      | 'ta'
+      | 'lv'
+      | 'af'
+      | 'et'
+      | 'sl'
+      | 'ar'
+      | 'he'
+      | 'lt'
+      | 'mn'
+      | 'kk'
+      | 'hu'
+      | 'ro'
+      | 'ku'
+      | 'ckb'
+      | 'ug-cn'
+      | 'km'
+      | 'sr'
+      | 'eu'
+      | 'ky'
+      | 'hy-am'
+      | 'hr'
+      | 'eo'
+      | 'bn'
+      | 'ms'
+    >;
+    /** 翻译服务 */
+    serviceUrl?: string;
+  };
   /** 是否自动导入模块菜单 */
   initMenu?: boolean;
   /** 判断是否初始化的方式 */

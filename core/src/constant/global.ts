@@ -36,6 +36,13 @@ export enum ERRINFO {
 }
 
 /**
+ * 国际化服务
+ */
+export const I18N = {
+  DEFAULT_SERVICE_URL: 'https://service.cool-js.com/api/open/flow/run/invoke',
+};
+
+/**
  * 事件
  */
 export enum EVENT {
