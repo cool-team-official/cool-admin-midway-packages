@@ -14,6 +14,7 @@ class ColumnMetadata {
     // ---------------------------------------------------------------------
     constructor(options) {
         this["@instanceof"] = Symbol.for("ColumnMetadata");
+        this.dict = options.args.options.dict;
         /**
          * Type's length in the database.
          */

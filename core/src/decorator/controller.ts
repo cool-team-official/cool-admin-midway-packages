@@ -67,6 +67,8 @@ export interface QueryOp {
   where?: Function;
   // 查询字段
   select?: string[];
+  // 字段模糊查询
+  fieldLike?: string[] | FieldEq[] | (string | FieldEq)[];
   // 字段相等
   fieldEq?: string[] | FieldEq[] | (string | FieldEq)[];
   // 添加排序条件

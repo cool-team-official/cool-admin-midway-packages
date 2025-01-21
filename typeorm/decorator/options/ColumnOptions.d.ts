@@ -10,6 +10,10 @@ export interface ColumnOptions extends ColumnCommonOptions {
      */
     type?: ColumnType;
     /**
+     * cool dict key
+     */
+    dict?: string | string[];
+    /**
      * Column name in the database.
      */
     name?: string;

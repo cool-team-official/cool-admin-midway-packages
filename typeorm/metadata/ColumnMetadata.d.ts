@@ -12,6 +12,10 @@ import { ValueTransformer } from "../decorator/options/ValueTransformer";
 export declare class ColumnMetadata {
     readonly "@instanceof": symbol;
     /**
+     * cool
+     */
+    dict?: string | string[];
+    /**
      * Target class where column decorator is used.
      * This may not be always equal to entity metadata (for example embeds or inheritance cases).
      */

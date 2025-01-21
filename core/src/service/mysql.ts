@@ -470,6 +470,33 @@ export abstract class BaseMysqlService {
           }
         }
       }
+      // 字段模糊查询
+      if (!_.isEmpty(option.fieldLike)) {
+        for (let key of option.fieldLike) {
+          // 如果key有包含.的情况下操作
+          if (typeof key === 'string' && key.includes('.')) {
+            const keys = key.split('.');
+            const lastKey = keys.pop();
+            key = { requestParam: lastKey, column: key };
+          }
+          // 单表字段无别名的情况下操作
+          if (typeof key === 'string') {
+            if (query[key] || query[key] === 0) {
+              find.andWhere(`${key} like :${key}`, {
+                [key]: `%${query[key]}%`,
+              });
+              this.sqlParams.push(`%${query[key]}%`);
+            }
+          } else {
+            if (query[key.requestParam] || query[key.requestParam] === 0) {
+              find.andWhere(`${key.column} like :${key.column}`, {
+                [key.column]: `%${query[key.requestParam]}%`,
+              });
+              this.sqlParams.push(`%${query[key.requestParam]}%`);
+            }
+          }
+        }
+      }
     } else {
       sqlArr.push(selects.join(','));
     }

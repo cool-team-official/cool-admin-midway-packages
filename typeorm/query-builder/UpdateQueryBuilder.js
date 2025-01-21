@@ -10,6 +10,7 @@ const UpdateValuesMissingError_1 = require("../error/UpdateValuesMissingError");
 const error_1 = require("../error");
 const EntityPropertyNotFoundError_1 = require("../error/EntityPropertyNotFoundError");
 const DriverUtils_1 = require("../driver/DriverUtils");
+const Broadcaster_1 = require("../subscriber/Broadcaster");
 /**
  * Allows to build complex sql queries in a fashion way and execute those queries.
  */

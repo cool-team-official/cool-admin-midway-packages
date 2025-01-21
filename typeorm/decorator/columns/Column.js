@@ -35,6 +35,7 @@ function Column(typeOrOptions, options) {
         if (options.type === "hstore" && !options.hstoreType)
             options.hstoreType =
                 reflectMetadataType === Object ? "object" : "string";
+
         if (typeof typeOrOptions === "function") {
             // register an embedded
             (0, globals_1.getMetadataArgsStorage)().embeddeds.push({
@@ -61,6 +62,7 @@ function Column(typeOrOptions, options) {
                 propertyName: propertyName,
                 mode: "regular",
                 options: options,
+                dict: options.dict,
             });
             if (options.generated) {
                 (0, globals_1.getMetadataArgsStorage)().generations.push({
