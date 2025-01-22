@@ -14,13 +14,23 @@ import * as _ from 'lodash';
 import location from '../util/location';
 
 export type ApiTypes = 'add' | 'delete' | 'update' | 'page' | 'info' | 'list';
-// Crud配置
 
+/** 服务映射接口 */
+export type ServiceApis = {
+  /** 方法 */
+  method: string;
+  /** 描述 */
+  summary: string;
+};
+
+// Crud配置
 export interface CurdOption {
   // 路由前缀，不配置默认是按Controller下的文件夹路径
   prefix?: string;
   // curd api接口
-  api: ApiTypes[];
+  api?: ApiTypes[];
+  // 服务映射接口
+  serviceApis?: (ServiceApis | string)[];
   // 分页查询配置
   pageQueryOp?: QueryOp | Function;
   // 非分页查询配置
@@ -32,7 +42,7 @@ export interface CurdOption {
   // info 忽略返回属性
   infoIgnoreProperty?: string[];
   // 实体
-  entity: any;
+  entity?: any;
   // 服务
   service?: any;
   // api标签
@@ -206,12 +216,28 @@ function saveMetadata(prefix, routerOptions, target, curdOption, module) {
           path: `/${path}`,
           requestMethod: path == 'info' ? 'get' : 'post',
           method: path,
-          summary: apiDesc[path],
+          summary: apiDesc[path] || path,
           description: '',
         },
         target
       );
     });
-    Scope(ScopeEnum.Request)(target);
   }
+  if (!_.isEmpty(curdOption?.serviceApis)) {
+    curdOption.serviceApis.forEach(api => {
+      const methodName = typeof api === 'string' ? api : api.method;
+      attachClassMetadata(
+        WEB_ROUTER_KEY,
+        {
+          path: `/${methodName}`,
+          requestMethod: 'post',
+          method: methodName,
+          summary: typeof api === 'string' ? api : api.summary,
+          description: '',
+        },
+        target
+      );
+    });
+  }
+  Scope(ScopeEnum.Request)(target);
 }

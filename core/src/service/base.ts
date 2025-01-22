@@ -153,7 +153,7 @@ export abstract class BaseService {
    * @param autoSort 是否自动排序
    * @param connectionName 连接名称
    */
-  async sqlRenderPage(sql, query, autoSort = true, connectionName?) {
+  async sqlRenderPage(sql, query = {}, autoSort = true, connectionName?) {
     return await this.service.sqlRenderPage(
       sql,
       query,

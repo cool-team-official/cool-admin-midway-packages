@@ -12,6 +12,7 @@ import { BaseService } from '../service/base';
 import { IMidwayApplication } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
 import { TypeORMDataSourceManager } from '@midwayjs/typeorm';
+import { CoolValidateException } from '../exception/validate';
 
 /**
  * 控制器基类
@@ -48,6 +49,41 @@ export abstract class BaseController {
     await this.setService(curdOption);
     // 设置实体
     await this.setEntity(curdOption);
+    // 创建动态方法
+    await this.createDynamicMethods(curdOption);
+  }
+
+  /**
+   * 创建动态方法
+   * @param curdOption 配置
+   */
+  private async createDynamicMethods(curdOption: CurdOption) {
+    if (!curdOption.serviceApis) {
+      return;
+    }
+    // 过滤出非标准方法
+    const customMethods = curdOption.serviceApis;
+
+    // 为每个自定义方法创建对应的控制器方法
+    for (const api of customMethods) {
+      const methodName = typeof api === 'string' ? api : api.method;
+      if (this[methodName]) {
+        continue; // 如果方法已存在则跳过
+      }
+
+      this[methodName] = async function () {
+        const { body } = this.baseCtx.request;
+        const serviceMethod = this.service[methodName];
+
+        if (typeof serviceMethod !== 'function') {
+          throw new CoolValidateException(
+            `Service method ${methodName} not found`
+          );
+        }
+
+        return this.ok(await serviceMethod.call(this.service, body));
+      };
+    }
   }
 
   private async before(curdOption: CurdOption) {

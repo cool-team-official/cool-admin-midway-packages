@@ -42,7 +42,7 @@ class SelectQueryBuilder extends QueryBuilder_1.QueryBuilder {
         this.orderBys = [];
         this.relationMetadatas = [];
         this.broadcaster = new Broadcaster_1.Broadcaster(this.queryRunner);
-        this.broadcaster.broadcastAfterQueryBuilder(this, "select");
+        
     }
    
     // -------------------------------------------------------------------------
@@ -52,6 +52,7 @@ class SelectQueryBuilder extends QueryBuilder_1.QueryBuilder {
      * Gets generated SQL query without parameters being replaced.
      */
     getQuery() {
+        this.broadcaster.broadcastAfterQueryBuilder(this, "select");
         let sql = this.createComment();
         sql += this.createCteExpression();
         sql += this.createSelectExpression();
