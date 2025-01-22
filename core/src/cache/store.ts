@@ -10,9 +10,9 @@ class FsCacheStore {
 
   constructor(options = {}) {
     options = {
-      ...options,
       path: 'cache',
       ttl: -1,
+      ...options,
     };
     this.options = options;
     this.store = FsStore.create(options);

@@ -1,6 +1,6 @@
 {
   "name": "@cool-midway/rpc",
-  "version": "8.0.0",
+  "version": "8.0.0-beta.2",
   "description": "cool-admin midway rpc",
   "main": "dist/index.js",
   "typings": "index.d.ts",
@@ -29,8 +29,7 @@
     "url": "https://cool-js.com"
   },
   "devDependencies": {
-    "@cool-midway/core": "file:/Users/ap/Documents/src/admin/midway-packages/core",
-    "@midwayjs/cli": "^2.1.1",
+    "@cool-midway/core": "8.0.0-beta.1",
     "@midwayjs/core": "^3.20.0",
     "@midwayjs/koa": "^3.20.0",
     "@midwayjs/logger": "^3.4.2",

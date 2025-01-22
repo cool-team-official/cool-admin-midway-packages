@@ -1,6 +1,6 @@
 {
   "name": "@cool-midway/core",
-  "version": "8.0.0",
+  "version": "8.0.0-beta.1",
   "description": "cool-admin midway core",
   "main": "dist/index.js",
   "typings": "index.d.ts",
@@ -32,7 +32,6 @@
     "url": "https://cool-js.com"
   },
   "devDependencies": {
-    "@midwayjs/cli": "2.1.1",
     "@midwayjs/core": "^3.20.0",
     "@midwayjs/koa": "^3.20.0",
     "@midwayjs/logger": "^3.4.2",
@@ -52,10 +51,9 @@
   },
   "dependencies": {
     "@cool-midway/cache-manager-fs-hash": "^7.0.0",
-    "@midwayjs/cache": "^3.14.0",
     "@midwayjs/cache-manager": "^3.20.0",
     "axios": "^1.7.9",
-    "commander": "^13.0.0",
+    "commander": "^13.1.0",
     "download": "^8.0.0",
     "glob": "^11.0.1",
     "javascript-obfuscator": "^4.1.1",

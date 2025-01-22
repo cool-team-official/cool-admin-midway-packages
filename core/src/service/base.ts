@@ -6,7 +6,7 @@ import { CoolValidateException } from '../exception/validate';
 import { ERRINFO } from '../constant/global';
 import { Application, Context } from '@midwayjs/koa';
 import { TypeORMDataSourceManager } from '@midwayjs/typeorm';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Repository } from 'typeorm';
 import { QueryOp } from '../decorator/controller';
 import * as _ from 'lodash';
 import { CoolEventManager } from '../event';
@@ -138,11 +138,7 @@ export abstract class BaseService {
    * @param autoSort
    * @param connectionName
    */
-  async entityRenderPage(
-    find: SelectQueryBuilder<any>,
-    query,
-    autoSort = true
-  ) {
+  async entityRenderPage(find: any, query, autoSort = true) {
     return await this.service.entityRenderPage(find, query, autoSort);
   }
 

@@ -21,12 +21,11 @@ import { CoolEventManager } from './event';
 import { CoolEps } from './rest/eps';
 import { CoolDecorator } from './decorator';
 import * as cache from '@midwayjs/cache-manager';
-import * as _cache from '@midwayjs/cache';
 import { LocationUtil } from './util/location';
 
 @Configuration({
   namespace: 'cool',
-  imports: [_cache, cache],
+  imports: [cache],
   importConfigs: [
     {
       default: DefaultConfig,
