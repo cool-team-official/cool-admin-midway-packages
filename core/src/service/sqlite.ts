@@ -177,7 +177,7 @@ export abstract class BaseSqliteService {
     const {
       size = this._coolConfig.crud.pageSize,
       page = 1,
-      order = 'createTime',
+      order = 'id',
       sort = 'desc',
       isExport = false,
       maxExportLimit,
@@ -213,7 +213,7 @@ export abstract class BaseSqliteService {
     const {
       size = this._coolConfig.crud.pageSize,
       page = 1,
-      order = 'createTime',
+      order = 'id',
       sort = 'desc',
       isExport = false,
       maxExportLimit,
@@ -418,7 +418,7 @@ export abstract class BaseSqliteService {
    * @param option
    */
   async getOptionFind(query, option: QueryOp) {
-    let { order = 'createTime', sort = 'desc', keyWord = '' } = query;
+    let { order = 'id', sort = 'desc', keyWord = '' } = query;
     const sqlArr = ['SELECT'];
     const selects = ['a.*'];
     const find = this.entity.createQueryBuilder('a');
