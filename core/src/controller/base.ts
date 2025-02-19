@@ -8,7 +8,6 @@ import {
 } from '@midwayjs/core';
 import { GlobalConfig } from '../constant/global';
 import { ControllerOption, CurdOption } from '../decorator/controller';
-import { BaseService } from '../service/base';
 import { IMidwayApplication } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
 import { TypeORMDataSourceManager } from '@midwayjs/typeorm';
@@ -22,8 +21,7 @@ export abstract class BaseController {
   @Inject('ctx')
   baseCtx: Context;
 
-  @Inject()
-  service: BaseService;
+  service: any;
 
   @App()
   baseApp: IMidwayApplication;
@@ -38,6 +36,7 @@ export abstract class BaseController {
   @Init()
   async init() {
     const option: ControllerOption = getClassMetadata(CONTROLLER_KEY, this);
+    this.service = await this.baseCtx.requestContext.getAsync('baseService');
     const curdOption: CurdOption = option.curdOption;
     this.curdOption = curdOption;
     if (!this.curdOption) {
@@ -51,6 +50,17 @@ export abstract class BaseController {
     await this.setEntity(curdOption);
     // 创建动态方法
     await this.createDynamicMethods(curdOption);
+  }
+
+  /**
+   * 获取用户ID
+   * @param type 类型
+   * @returns
+   */
+  protected getUserId(type: 'admin' | 'app' = 'admin') {
+    return type === 'admin'
+      ? this.baseCtx.admin?.userId
+      : this.baseCtx.user?.id;
   }
 
   /**

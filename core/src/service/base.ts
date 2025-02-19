@@ -69,6 +69,22 @@ export abstract class BaseService {
     await this.service.init();
   }
 
+  /**
+   * 获取用户ID
+   * @param type 类型
+   * @returns
+   */
+  /**
+   * 获取用户ID
+   * @param type 类型
+   * @returns
+   */
+  protected getUserId(type: 'admin' | 'app' = 'admin') {
+    return type === 'admin'
+      ? this.baseCtx.admin?.userId
+      : this.baseCtx.user?.id;
+  }
+
   // 设置模型
   setEntity(entity: any) {
     this.entity = entity;

@@ -8,6 +8,7 @@ import {
   MiddlewareParamArray,
   WEB_ROUTER_KEY,
   attachClassMetadata,
+  getClassMetadata,
 } from '@midwayjs/core';
 import * as fs from 'fs';
 import * as _ from 'lodash';
@@ -74,7 +75,7 @@ export interface QueryOp {
   // 需要模糊查询的字段
   keyWordLikeFields?: string[];
   // 查询条件
-  where?: Function;
+  where?: Function | any[][];
   // 查询字段
   select?: string[];
   // 字段模糊查询
@@ -209,34 +210,50 @@ function saveMetadata(prefix, routerOptions, target, curdOption, module) {
   );
   // 追加CRUD路由
   if (!_.isEmpty(curdOption?.api)) {
+    // 获取已存在的路由
+    const existingRoutes = getClassMetadata(WEB_ROUTER_KEY, target) || [];
+    const existingPaths = existingRoutes.map(route => route.path);
+
     curdOption?.api.forEach(path => {
-      attachClassMetadata(
-        WEB_ROUTER_KEY,
-        {
-          path: `/${path}`,
-          requestMethod: path == 'info' ? 'get' : 'post',
-          method: path,
-          summary: apiDesc[path] || path,
-          description: '',
-        },
-        target
-      );
+      const routePath = `/${path}`;
+      // 检查路由是否已存在
+      if (!existingPaths.includes(routePath)) {
+        attachClassMetadata(
+          WEB_ROUTER_KEY,
+          {
+            path: routePath,
+            requestMethod: path == 'info' ? 'get' : 'post',
+            method: path,
+            summary: apiDesc[path] || path,
+            description: '',
+          },
+          target
+        );
+      }
     });
   }
   if (!_.isEmpty(curdOption?.serviceApis)) {
+    // 获取已存在的路由
+    const existingRoutes = getClassMetadata(WEB_ROUTER_KEY, target) || [];
+    const existingPaths = existingRoutes.map(route => route.path);
+
     curdOption.serviceApis.forEach(api => {
       const methodName = typeof api === 'string' ? api : api.method;
-      attachClassMetadata(
-        WEB_ROUTER_KEY,
-        {
-          path: `/${methodName}`,
-          requestMethod: 'post',
-          method: methodName,
-          summary: typeof api === 'string' ? api : api.summary,
-          description: '',
-        },
-        target
-      );
+      const routePath = `/${methodName}`;
+      // 检查路由是否已存在
+      if (!existingPaths.includes(routePath)) {
+        attachClassMetadata(
+          WEB_ROUTER_KEY,
+          {
+            path: routePath,
+            requestMethod: 'post',
+            method: methodName,
+            summary: typeof api === 'string' ? api : api.summary,
+            description: '',
+          },
+          target
+        );
+      }
     });
   }
   Scope(ScopeEnum.Request)(target);
