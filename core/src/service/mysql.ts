@@ -162,7 +162,7 @@ export abstract class BaseMysqlService {
       find.addOrderBy(order, sort.toUpperCase());
     }
     return {
-      list: await dataFind.getRawMany(),
+      list: await dataFind.getMany(),
       pagination: {
         page: parseInt(page),
         size: parseInt(size),

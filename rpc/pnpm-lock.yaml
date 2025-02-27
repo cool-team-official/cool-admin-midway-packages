@@ -16,8 +16,8 @@ importers:
         version: 0.14.35(debug@4.4.0)(ioredis@5.4.2)
     devDependencies:
       '@cool-midway/core':
-        specifier: 8.0.0-beta.1
-        version: 8.0.0-beta.1(debug@4.4.0)
+        specifier: 8.0.1
+        version: 8.0.1(debug@4.4.0)
       '@midwayjs/core':
         specifier: ^3.20.0
         version: 3.20.0
@@ -258,8 +258,8 @@ packages:
     resolution: {integrity: sha512-Bl43bVCUm0V+w1wkfOicRfiHHZtaH1mQCp06baNapG86uC7OiXwMrml5+cvZD+mYSHdP07qUxtqkL8oUhrgAfg==}
     engines: {node: '>=8.0.0'}
 
-  '@cool-midway/core@8.0.0-beta.1':
-    resolution: {integrity: sha512-3pNmtB2f3MrkBPCJlFiizWui1FqGxti8VBaBtOWJhg66tZeNdsSQsnG4/o1R2WfLHjlMkSMsCL0Jrl7HC7/Aig==}
+  '@cool-midway/core@8.0.1':
+    resolution: {integrity: sha512-iRC1bU2h3udsXAEnnNmY1TjY7lvEuPYLXILOLBk33in0MYgIxQfaMTNAJqGSKMaOJMiWEk83pt/1jLyzHNVABg==}
     hasBin: true
 
   '@cspotcode/source-map-support@0.8.1':
@@ -4192,7 +4192,7 @@ snapshots:
     dependencies:
       lockfile: 1.0.4
 
-  '@cool-midway/core@8.0.0-beta.1(debug@4.4.0)':
+  '@cool-midway/core@8.0.1(debug@4.4.0)':
     dependencies:
       '@cool-midway/cache-manager-fs-hash': 7.0.0
       '@midwayjs/cache-manager': 3.20.0
