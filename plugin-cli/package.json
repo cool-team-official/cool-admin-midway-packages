@@ -1,0 +1,36 @@
+{
+  "name": "@cool-midway/plugin-cli",
+  "version": "8.0.0",
+  "description": "cool-admin midway plugin",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "cool",
+    "cool-admin",
+    "cooljs"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://cool-js.com"
+  },
+  "bin": {
+    "cool-plugin-cli": "scripts/index.js"
+  },
+  "author": "COOL",
+  "readme": "README.md",
+  "license": "MIT",
+  "dependencies": {
+    "@cool-midway/cache-manager-fs-hash": "^7.0.0",
+    "@midwayjs/cache-manager": "^3.20.3",
+    "@midwayjs/core": "^3.20.3",
+    "archiver": "^7.0.1",
+    "esbuild": "^0.25.0",
+    "esbuild-plugin-copy": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "typescript": "^5.8.2"
+  }
+}
