@@ -469,7 +469,7 @@ export abstract class BasePgService {
         }
       }
       // 关键字模糊搜索
-      if (keyWord || keyWord == 0) {
+      if (keyWord || keyWord === 0) {
         keyWord = `%${keyWord}%`;
         find.andWhere(
           new Brackets(qb => {
