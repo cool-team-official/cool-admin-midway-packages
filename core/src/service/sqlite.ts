@@ -6,7 +6,7 @@ import { Application, Context } from '@midwayjs/koa';
 import * as SqlString from 'sqlstring';
 import { CoolConfig } from '../interface';
 import { TypeORMDataSourceManager } from '@midwayjs/typeorm';
-import { Brackets, In, Repository, SelectQueryBuilder } from 'typeorm';
+import { Brackets, Equal, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { QueryOp } from '../decorator/controller';
 import * as _ from 'lodash';
 import { CoolEventManager } from '../event';
@@ -367,7 +367,10 @@ export abstract class BaseSqliteService {
       const upsert = this._coolConfig.crud?.upsert || 'normal';
       if (type == 'update') {
         if (upsert == 'save') {
-          const info = await this.entity.findOneBy({ id: param.id });
+          const info = await this.entity.findOneBy({ id: Equal(param.id) });
+          if (!info) {
+            throw new CoolValidateException(ERRINFO.NOTFOUND);
+          }
           param = {
             ...info,
             ...param,

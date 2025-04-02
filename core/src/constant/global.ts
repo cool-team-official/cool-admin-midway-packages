@@ -33,6 +33,7 @@ export enum ERRINFO {
   NOENTITY = '未设置操作实体',
   NOID = '查询参数[id]不存在',
   SORTFIELD = '排序参数不正确',
+  NOTFOUND = '数据不存在~',
 }
 
 /**
