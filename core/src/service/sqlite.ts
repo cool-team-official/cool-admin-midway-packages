@@ -193,7 +193,7 @@ export abstract class BaseSqliteService {
       find.addOrderBy(order, sort.toUpperCase());
     }
     return {
-      list: await dataFind.getMany(),
+      list: await dataFind.getRawMany(),
       pagination: {
         page: parseInt(page),
         size: parseInt(size),
