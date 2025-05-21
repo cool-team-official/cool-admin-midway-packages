@@ -50,6 +50,7 @@ export class CoolConfiguration implements ILifeCycle {
 
   async onReady(container: IMidwayContainer) {
     this.coolEventManager.emit('onReady');
+    this.coolEventManager.globalEmit('onReadyOnce', true);
     // 处理模块配置
     await container.getAsync(CoolModuleConfig);
     // 常用函数处理
@@ -87,6 +88,7 @@ export class CoolConfiguration implements ILifeCycle {
     const eps: CoolEps = await container.getAsync(CoolEps);
     eps.init();
     this.coolEventManager.emit('onServerReady');
+    this.coolEventManager.globalEmit('onServerReadyOnce', true);
     // location.clean();
   }
 }
