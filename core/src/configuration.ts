@@ -87,8 +87,17 @@ export class CoolConfiguration implements ILifeCycle {
     // 实体与路径
     const eps: CoolEps = await container.getAsync(CoolEps);
     eps.init();
+  }
+
+  /**
+   * 事件初始化
+   */
+  async eventInit() {
     this.coolEventManager.emit('onServerReady');
-    this.coolEventManager.globalEmit('onServerReadyOnce', true);
-    // location.clean();
+    const env = this.app.getEnv();
+    const isMainProcess = process.env.NODE_APP_INSTANCE == '0';
+    if (env == 'local' || isMainProcess) {
+      this.coolEventManager.globalEmit('onServerReadyOnce', true);
+    }
   }
 }
