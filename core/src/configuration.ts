@@ -87,6 +87,7 @@ export class CoolConfiguration implements ILifeCycle {
     // 实体与路径
     const eps: CoolEps = await container.getAsync(CoolEps);
     eps.init();
+    await this.eventInit();
   }
 
   /**
