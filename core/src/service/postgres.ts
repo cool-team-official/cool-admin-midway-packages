@@ -358,7 +358,9 @@ export abstract class BasePgService {
     if (param instanceof Array) {
       param.forEach(item => {
         item.updateTime = new Date();
-        item.createTime = new Date();
+        if (type == 'add') {
+          item.createTime = new Date();
+        }
       });
       await this.entity.save(param);
     } else {

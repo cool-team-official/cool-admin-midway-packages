@@ -1,6 +1,6 @@
 {
   "name": "@cool-midway/core",
-  "version": "8.0.7",
+  "version": "8.0.8",
   "description": "cool-admin midway core",
   "main": "dist/index.js",
   "typings": "index.d.ts",
