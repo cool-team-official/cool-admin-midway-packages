@@ -1,7 +1,7 @@
 import { CoolEventManager } from '@cool-midway/core';
 import { Client } from '@elastic/elasticsearch';
 import { WaitForActiveShards } from '@elastic/elasticsearch/lib/api/types';
-import { Inject, Logger } from '@midwayjs/decorator';
+import { Inject, Logger } from '@midwayjs/core';
 import { ILogger } from '@midwayjs/logger';
 import { EsConfig } from '.';
 
@@ -93,45 +93,45 @@ export class BaseEsIndex {
 
   /**
    * 对象转body
-   * @param condition 
+   * @param condition
    */
-  async objToBody(condition: any){
+  async objToBody(condition: any) {
     const body = {
       query: {
         bool: {
           must: [],
         },
-      }
-    }
-    for(const key in condition){
+      },
+    };
+    for (const key in condition) {
       body.query.bool.must.push({
         term: {
-          [key]: condition[key]
-        }
-      })
+          [key]: condition[key],
+        },
+      });
     }
     return body;
   }
 
   /**
    * 按字段值查找
-   * @param condition 
-   * @param size 
-   * @returns 
+   * @param condition
+   * @param size
+   * @returns
    */
-  async findBy(condition: any, size?: number){
-    const body = await this.objToBody(condition)
+  async findBy(condition: any, size?: number) {
+    const body = await this.objToBody(condition);
     return this.find(body, size);
   }
 
   /**
    * 按字段值分页查找
-   * @param condition 
-   * @param page 
-   * @param size 
+   * @param condition
+   * @param page
+   * @param size
    */
-  async findPageBy(condition: any, page?: number, size?: number){
-    const body = await this.objToBody(condition)
+  async findPageBy(condition: any, page?: number, size?: number) {
+    const body = await this.objToBody(condition);
     return this.findPage(body, page, size);
   }
 
@@ -143,7 +143,7 @@ export class BaseEsIndex {
     if (!body) {
       body = {};
     }
-    if(!body.size){
+    if (!body.size) {
       body.size = size ? size : 10000;
     }
     return this.client

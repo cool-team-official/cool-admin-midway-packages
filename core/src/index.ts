@@ -1,52 +1,53 @@
-export { CoolConfiguration as Configuration } from "./configuration";
+export { CoolConfiguration as Configuration } from './configuration';
 
 // 异常处理
-export * from "./exception/filter";
-export * from "./exception/core";
-export * from "./exception/base";
-export * from "./exception/comm";
-export * from "./exception/validate";
+export * from './exception/filter';
+export * from './exception/core';
+export * from './exception/base';
+export * from './exception/comm';
+export * from './exception/validate';
 
 // cache
-export * from "./cache/store";
+export * from './cache/store';
 
 // entity
-export * from "./entity/base";
-export * from "./entity/typeorm";
-export * from "./entity/mongo";
+export * from './entity/base';
+export * from './entity/typeorm';
+export * from './entity/mongo';
 
 // service
-export * from "./service/base";
-export * from "./service/mysql";
-export * from "./service/postgres";
-export * from "./service/sqlite";
+export * from './service/base';
+export * from './service/mysql';
+export * from './service/postgres';
+export * from './service/sqlite';
 
 // controller
-export * from "./controller/base";
+export * from './controller/base';
 
 // 事件
-export * from "./event/index";
+export * from './event/index';
 
 // 装饰器
-export * from "./decorator/controller";
-export * from "./decorator/cache";
-export * from "./decorator/event";
-export * from "./decorator/transaction";
-export * from "./decorator/tag";
-export * from "./decorator/index";
+export * from './decorator/controller';
+export * from './decorator/cache';
+export * from './decorator/event';
+export * from './decorator/transaction';
+export * from './decorator/tag';
+export * from './decorator/index';
 
 // rest
-export * from "./rest/eps";
+export * from './rest/eps';
 
 // tag
-export * from "./tag/data";
+export * from './tag/data';
 
 // 模块
-export * from "./module/config";
-export * from "./module/import";
-export * from "./module/menu";
+export * from './module/config';
+export * from './module/import';
+export * from './module/menu';
 
 // 其他
-export * from "./interface";
-export * from "./util/func";
-export * from "./constant/global";
+export * from './interface';
+export * from './util/func';
+export * from './constant/global';
+export * from './util/location';

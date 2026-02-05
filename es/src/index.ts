@@ -14,5 +14,5 @@ export interface ICoolEs {
 
 export interface CoolEsConfig {
   nodes: string[];
-  options?: ClientOptions
+  options?: ClientOptions;
 }

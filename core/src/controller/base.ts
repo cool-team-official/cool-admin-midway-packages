@@ -5,24 +5,23 @@ import {
   Init,
   Inject,
   Provide,
-} from "@midwayjs/decorator";
-import { GlobalConfig } from "../constant/global";
-import { ControllerOption, CurdOption } from "../decorator/controller";
-import { BaseService } from "../service/base";
-import { IMidwayApplication } from "@midwayjs/core";
-import { Context } from "@midwayjs/koa";
-import { TypeORMDataSourceManager } from "@midwayjs/typeorm";
+} from '@midwayjs/core';
+import { GlobalConfig } from '../constant/global';
+import { ControllerOption, CurdOption } from '../decorator/controller';
+import { IMidwayApplication } from '@midwayjs/core';
+import { Context } from '@midwayjs/koa';
+import { TypeORMDataSourceManager } from '@midwayjs/typeorm';
+import { CoolValidateException } from '../exception/validate';
 
 /**
  * 控制器基类
  */
 @Provide()
 export abstract class BaseController {
-  @Inject("ctx")
+  @Inject('ctx')
   baseCtx: Context;
 
-  @Inject()
-  service: BaseService;
+  service: any;
 
   @App()
   baseApp: IMidwayApplication;
@@ -37,6 +36,7 @@ export abstract class BaseController {
   @Init()
   async init() {
     const option: ControllerOption = getClassMetadata(CONTROLLER_KEY, this);
+    this.service = await this.baseCtx.requestContext.getAsync('baseService');
     const curdOption: CurdOption = option.curdOption;
     this.curdOption = curdOption;
     if (!this.curdOption) {
@@ -48,6 +48,52 @@ export abstract class BaseController {
     await this.setService(curdOption);
     // 设置实体
     await this.setEntity(curdOption);
+    // 创建动态方法
+    await this.createDynamicMethods(curdOption);
+  }
+
+  /**
+   * 获取用户ID
+   * @param type 类型
+   * @returns
+   */
+  protected getUserId(type: 'admin' | 'app' = 'admin') {
+    return type === 'admin'
+      ? this.baseCtx.admin?.userId
+      : this.baseCtx.user?.id;
+  }
+
+  /**
+   * 创建动态方法
+   * @param curdOption 配置
+   */
+  private async createDynamicMethods(curdOption: CurdOption) {
+    if (!curdOption.serviceApis) {
+      return;
+    }
+    // 过滤出非标准方法
+    const customMethods = curdOption.serviceApis;
+
+    // 为每个自定义方法创建对应的控制器方法
+    for (const api of customMethods) {
+      const methodName = typeof api === 'string' ? api : api.method;
+      if (this[methodName]) {
+        continue; // 如果方法已存在则跳过
+      }
+
+      this[methodName] = async function () {
+        const { body } = this.baseCtx.request;
+        const serviceMethod = this.service[methodName];
+
+        if (typeof serviceMethod !== 'function') {
+          throw new CoolValidateException(
+            `Service method ${methodName} not found`
+          );
+        }
+
+        return this.ok(await serviceMethod.call(this.service, body));
+      };
+    }
   }
 
   private async before(curdOption: CurdOption) {
@@ -96,7 +142,7 @@ export abstract class BaseController {
       const dataSourceName =
         this.typeORMDataSourceManager.getDataSourceNameByModel(entity);
       this.connectionName = dataSourceName;
-      let entityModel = this.typeORMDataSourceManager
+      const entityModel = this.typeORMDataSourceManager
         .getDataSource(dataSourceName)
         .getRepository(entity);
       this.service.setEntity(entityModel);
@@ -197,7 +243,7 @@ export abstract class BaseController {
       message: RESMESSAGE.SUCCESS,
     };
     if (data || data == 0) {
-      res["data"] = data;
+      res['data'] = data;
     }
     return res;
   }

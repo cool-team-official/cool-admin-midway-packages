@@ -1,5 +1,5 @@
 import { ILogger } from '@midwayjs/core';
-import { Init, Logger, Provide, Scope, ScopeEnum } from '@midwayjs/decorator';
+import { Init, Logger, Provide, Scope, ScopeEnum } from '@midwayjs/core';
 import * as moment from 'moment';
 
 /**

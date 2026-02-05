@@ -1,13 +1,14 @@
-import { ILogger, IMidwayApplication, Scope, ScopeEnum } from "@midwayjs/core";
-import { App, Config, Inject, Logger, Provide } from "@midwayjs/decorator";
-import { InjectDataSource, TypeORMDataSourceManager } from "@midwayjs/typeorm";
-import * as fs from "fs";
-import * as _ from "lodash";
-import * as path from "path";
-import { DataSource, Equal } from "typeorm";
-import { CoolEventManager } from "../event";
-import { CoolModuleConfig } from "./config";
-import { CoolModuleMenu } from "./menu";
+import { ILogger, IMidwayApplication, Scope, ScopeEnum } from '@midwayjs/core';
+import { App, Config, Inject, Logger, Provide } from '@midwayjs/core';
+import { InjectDataSource, TypeORMDataSourceManager } from '@midwayjs/typeorm';
+import * as fs from 'fs';
+import * as _ from 'lodash';
+import * as path from 'path';
+import { DataSource, Equal } from 'typeorm';
+import { CoolEventManager } from '../event';
+import { CoolModuleConfig } from './config';
+import { CoolModuleMenu } from './menu';
+import location from '../util/location';
 
 /**
  * 模块sql
@@ -15,16 +16,16 @@ import { CoolModuleMenu } from "./menu";
 @Provide()
 @Scope(ScopeEnum.Singleton)
 export class CoolModuleImport {
-  @Config("typeorm.dataSource")
+  @Config('typeorm.dataSource')
   ormConfig;
 
-  @InjectDataSource("default")
+  @InjectDataSource('default')
   defaultDataSource: DataSource;
 
   @Inject()
   typeORMDataSourceManager: TypeORMDataSourceManager;
 
-  @Config("cool")
+  @Config('cool')
   coolConfig;
 
   @Logger()
@@ -42,7 +43,7 @@ export class CoolModuleImport {
   @Inject()
   coolModuleMenu: CoolModuleMenu;
 
-  initJudge: "file" | "db";
+  initJudge: 'file' | 'db';
 
   /**
    * 初始化
@@ -50,28 +51,29 @@ export class CoolModuleImport {
   async init() {
     this.initJudge = this.coolConfig.initJudge;
     if (!this.initJudge) {
-      this.initJudge = "file";
+      this.initJudge = 'file';
     }
     // 是否需要导入
     if (this.coolConfig.initDB) {
       const modules = this.coolModuleConfig.modules;
+      if (!modules || modules.length === 0) return;
       const metadatas = await this.getDbMetadatas();
       setTimeout(async () => {
         for (const module of modules) {
-          if (this.initJudge == "file") {
+          if (this.initJudge == 'file') {
             const { exist, lockPath } = this.checkFileExist(module);
             if (!exist) {
               await this.initDataBase(module, metadatas, lockPath);
             }
           }
-          if (this.initJudge == "db") {
+          if (this.initJudge == 'db') {
             const exist = await this.checkDbExist(module, metadatas);
             if (!exist) {
               await this.initDataBase(module, metadatas);
             }
           }
         }
-        this.coolEventManager.emit("onDBInit", {});
+        this.coolEventManager.emit('onDBInit', {});
         this.coolModuleMenu.init();
       }, 2000);
     }
@@ -84,8 +86,8 @@ export class CoolModuleImport {
     // 获得所有的实体
     const entityMetadatas = this.defaultDataSource.entityMetadatas;
     const metadatas = _.mapValues(
-      _.keyBy(entityMetadatas, "tableName"),
-      "target"
+      _.keyBy(entityMetadatas, 'tableName'),
+      'target'
     );
     return metadatas;
   }
@@ -98,7 +100,7 @@ export class CoolModuleImport {
   async checkDbExist(module: string, metadatas) {
     const cKey = `init_db_${module}`;
     const repository = this.defaultDataSource.getRepository(
-      metadatas["base_sys_conf"]
+      metadatas['base_sys_conf']
     );
     const data = await repository.findOneBy({ cKey: Equal(cKey) });
     return !!data;
@@ -110,15 +112,15 @@ export class CoolModuleImport {
    */
   checkFileExist(module: string) {
     const importLockPath = path.join(
-      `${this.app.getBaseDir()}`,
-      "..",
-      "lock",
-      "db"
+      `${location.getRunPath()}`,
+      '..',
+      'lock',
+      'db'
     );
     if (!fs.existsSync(importLockPath)) {
       fs.mkdirSync(importLockPath, { recursive: true });
     }
-    const lockPath = path.join(importLockPath, module + ".db.lock");
+    const lockPath = path.join(importLockPath, module + '.db.lock');
     return {
       exist: fs.existsSync(lockPath),
       lockPath,
@@ -134,13 +136,13 @@ export class CoolModuleImport {
     // 计算耗时
     const startTime = new Date().getTime();
     // 模块路径
-    const modulePath = `${this.app.getBaseDir()}/modules/${module}`;
+    const modulePath = `${location.getRunPath()}/modules/${module}`;
     // 数据路径
     const dataPath = `${modulePath}/db.json`;
     // 判断文件是否存在
     if (fs.existsSync(dataPath)) {
       // 读取数据
-      const data = JSON.parse(fs.readFileSync(dataPath).toString() || "{}");
+      const data = JSON.parse(fs.readFileSync(dataPath).toString() || '{}');
       // 导入数据
       for (const key in data) {
         try {
@@ -149,9 +151,9 @@ export class CoolModuleImport {
           }
         } catch (e) {
           this.coreLogger.error(
-            "\x1B[36m [cool:core] midwayjs cool core init " +
+            '\x1B[36m [cool:core] midwayjs cool core init ' +
               module +
-              " database err \x1B[0m"
+              ' database err \x1B[0m'
           );
           continue;
         }
@@ -164,9 +166,9 @@ export class CoolModuleImport {
         endTime - startTime
       );
       this.coreLogger.info(
-        "\x1B[36m [cool:core] midwayjs cool core init " +
+        '\x1B[36m [cool:core] midwayjs cool core init ' +
           module +
-          " database complete \x1B[0m"
+          ' database complete \x1B[0m'
       );
     }
   }
@@ -184,14 +186,14 @@ export class CoolModuleImport {
     lockPath: string,
     time: number
   ) {
-    if (this.initJudge == "file") {
+    if (this.initJudge == 'file') {
       fs.writeFileSync(lockPath, `time consuming：${time}ms`);
     }
-    if (this.initJudge == "db") {
+    if (this.initJudge == 'db') {
       const repository = this.defaultDataSource.getRepository(
-        metadatas["base_sys_conf"]
+        metadatas['base_sys_conf']
       );
-      if (this.ormConfig.default.type == "postgres") {
+      if (this.ormConfig.default.type == 'postgres') {
         await repository.save(
           repository.create({
             cKey: `init_db_${module}`,
@@ -225,9 +227,9 @@ export class CoolModuleImport {
     // 处理当前项中的引用
     if (parentItem) {
       for (const key in item) {
-        if (typeof item[key] === "string" && item[key].startsWith("@")) {
+        if (typeof item[key] === 'string' && item[key].startsWith('@')) {
           const parentKey = item[key].substring(1); // 移除"@"符号
-          if (parentItem.hasOwnProperty(parentKey)) {
+          if (Object.prototype.hasOwnProperty.call(parentItem, parentKey)) {
             item[key] = parentItem[parentKey];
           }
         }
@@ -235,7 +237,7 @@ export class CoolModuleImport {
     }
     // 插入当前项到数据库
     let insertedItem;
-    if (this.ormConfig.default.type == "postgres") {
+    if (this.ormConfig.default.type == 'postgres') {
       insertedItem = await repository.save(repository.create(item));
       if (item.id) {
         await repository.update(insertedItem.id, { id: item.id });
@@ -247,9 +249,9 @@ export class CoolModuleImport {
       insertedItem = await repository.insert(item);
     }
     // 递归处理@childDatas
-    if (!_.isEmpty(item["@childDatas"])) {
-      const childDatas = item["@childDatas"];
-      delete item["@childDatas"];
+    if (!_.isEmpty(item['@childDatas'])) {
+      const childDatas = item['@childDatas'];
+      delete item['@childDatas'];
       for (const childKey in childDatas) {
         for (const childItem of childDatas[childKey]) {
           await this.importData(metadatas, childItem, childKey, item);

@@ -1,4 +1,4 @@
-import { Logger, Provide, Scope, ScopeEnum } from '@midwayjs/decorator';
+import { Logger, Provide, Scope, ScopeEnum } from '@midwayjs/core';
 import { CoolRpcEvent, CoolRpcEventHandler } from '..';
 import { ILogger } from '@midwayjs/logger';
 

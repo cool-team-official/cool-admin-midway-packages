@@ -17,38 +17,45 @@ export enum RESCODE {
  */
 export enum RESMESSAGE {
   // 成功
-  SUCCESS = "success",
+  SUCCESS = 'success',
   // 失败
-  COMMFAIL = "comm fail",
+  COMMFAIL = 'comm fail',
   // 参数验证失败
-  VALIDATEFAIL = "validate fail",
+  VALIDATEFAIL = 'validate fail',
   // 核心异常
-  COREFAIL = "core fail",
+  COREFAIL = 'core fail',
 }
 
 /**
  * 错误提示
  */
 export enum ERRINFO {
-  NOENTITY = "未设置操作实体",
-  NOID = "查询参数[id]不存在",
-  SORTFIELD = "排序参数不正确",
+  NOENTITY = '未设置操作实体',
+  NOID = '查询参数[id]不存在',
+  SORTFIELD = '排序参数不正确',
+  NOTFOUND = '数据不存在~',
 }
+
+/**
+ * 国际化服务
+ */
+export const I18N = {
+  DEFAULT_SERVICE_URL: 'https://service.cool-js.com/api/open/flow/run/invoke',
+};
 
 /**
  * 事件
  */
 export enum EVENT {
   // 软删除
-  SOFT_DELETE = "onSoftDelete",
+  SOFT_DELETE = 'onSoftDelete',
   // 服务成功启动
-  SERVER_READY = "onServerReady",
+  SERVER_READY = 'onServerReady',
   // 服务就绪
-  READY = "onReady",
+  READY = 'onReady',
   // ES 数据改变
-  ES_DATA_CHANGE = "esDataChange",
+  ES_DATA_CHANGE = 'esDataChange',
 }
-
 
 export class GlobalConfig {
   private static instance: GlobalConfig;
@@ -61,10 +68,10 @@ export class GlobalConfig {
   };
 
   RESMESSAGE = {
-    SUCCESS: "success",
-    COMMFAIL: "comm fail",
-    VALIDATEFAIL: "validate fail",
-    COREFAIL: "core fail",
+    SUCCESS: 'success',
+    COMMFAIL: 'comm fail',
+    VALIDATEFAIL: 'validate fail',
+    COREFAIL: 'core fail',
   };
 
   // ... 其他的配置 ...
@@ -78,7 +85,3 @@ export class GlobalConfig {
     return GlobalConfig.instance;
   }
 }
-
-
-
-

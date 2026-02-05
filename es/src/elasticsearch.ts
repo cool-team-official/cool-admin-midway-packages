@@ -8,9 +8,9 @@ import {
   Scope,
   ScopeEnum,
   Config,
-} from '@midwayjs/decorator';
+  listModule,
+} from '@midwayjs/core';
 import { COOL_ES_KEY, EsConfig } from './decorator/elasticsearch';
-import { listModule } from '@midwayjs/decorator';
 import { IMidwayApplication } from '@midwayjs/core';
 import { CoolCoreException, CoolEventManager } from '@cool-midway/core';
 import { ILogger } from '@midwayjs/logger';
@@ -44,9 +44,15 @@ export class CoolElasticSearch {
       throw new CoolCoreException('es.nodes config is require');
     }
     if (this.esConfig.nodes.length == 1) {
-      this.client = new Client({ node: this.esConfig.nodes[0], ...this.esConfig.options });
+      this.client = new Client({
+        node: this.esConfig.nodes[0],
+        ...this.esConfig.options,
+      });
     } else {
-      this.client = new Client({ nodes: this.esConfig.nodes, ...this.esConfig.options });
+      this.client = new Client({
+        nodes: this.esConfig.nodes,
+        ...this.esConfig.options,
+      });
     }
     this.client.ping({}, { requestTimeout: 30000 }).then(res => {
       if (res) {

@@ -1,5 +1,5 @@
-import { COOL_CACHE } from "./cache";
-import { CachingFactory, MidwayCache } from "@midwayjs/cache-manager";
+import { COOL_CACHE } from './cache';
+import { CachingFactory, MidwayCache } from '@midwayjs/cache-manager';
 import {
   Init,
   Inject,
@@ -9,12 +9,12 @@ import {
   Provide,
   Scope,
   ScopeEnum,
-} from "@midwayjs/core";
-import { TypeORMDataSourceManager } from "@midwayjs/typeorm";
-import { CoolCommException } from "../exception/comm";
-import { COOL_TRANSACTION, TransactionOptions } from "./transaction";
-import * as md5 from "md5";
-import { CoolUrlTagData } from "../tag/data";
+} from '@midwayjs/core';
+import { TypeORMDataSourceManager } from '@midwayjs/typeorm';
+import { CoolCommException } from '../exception/comm';
+import { COOL_TRANSACTION, TransactionOptions } from './transaction';
+import * as md5 from 'md5';
+import { CoolUrlTagData } from '../tag/data';
 
 /**
  * 装饰器
@@ -28,7 +28,7 @@ export class CoolDecorator {
   @Inject()
   decoratorService: MidwayDecoratorService;
 
-  @InjectClient(CachingFactory, "default")
+  @InjectClient(CachingFactory, 'default')
   midwayCache: MidwayCache;
 
   @Inject()
@@ -48,7 +48,7 @@ export class CoolDecorator {
    * 缓存
    */
   async cache() {
-    this.decoratorService.registerMethodHandler(COOL_CACHE, (options) => {
+    this.decoratorService.registerMethodHandler(COOL_CACHE, options => {
       return {
         around: async (joinPoint: JoinPoint) => {
           const key = md5(
@@ -79,12 +79,12 @@ export class CoolDecorator {
    * 事务
    */
   async transaction() {
-    this.decoratorService.registerMethodHandler(COOL_TRANSACTION, (options) => {
+    this.decoratorService.registerMethodHandler(COOL_TRANSACTION, options => {
       return {
         around: async (joinPoint: JoinPoint) => {
           const option: TransactionOptions = options.metadata;
           const dataSource = this.typeORMDataSourceManager.getDataSource(
-            option?.connectionName || "default"
+            option?.connectionName || 'default'
           );
           const queryRunner = dataSource.createQueryRunner();
           await queryRunner.connect();

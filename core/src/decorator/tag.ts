@@ -1,12 +1,16 @@
-import { saveClassMetadata, savePropertyDataToClass, saveModule } from "@midwayjs/decorator";
+import {
+  saveClassMetadata,
+  savePropertyDataToClass,
+  saveModule,
+} from '@midwayjs/core';
 
-export const COOL_URL_TAG_KEY = "decorator:cool:url:tag";
+export const COOL_URL_TAG_KEY = 'decorator:cool:url:tag';
 
-export const COOL_METHOD_TAG_KEY = "decorator:cool:method:tag";
+export const COOL_METHOD_TAG_KEY = 'decorator:cool:method:tag';
 
 export enum TagTypes {
-  IGNORE_TOKEN = "ignoreToken",
-  IGNORE_SIGN = "ignoreSign",
+  IGNORE_TOKEN = 'ignoreToken',
+  IGNORE_SIGN = 'ignoreSign',
 }
 
 export interface CoolUrlTagConfig {
@@ -28,7 +32,6 @@ export function CoolUrlTag(data?: CoolUrlTagConfig): ClassDecorator {
   };
 }
 
-
 /**
  * 方法打标记
  * @param data
@@ -40,7 +43,7 @@ export function CoolTag(tag: TagTypes | string): MethodDecorator {
       COOL_METHOD_TAG_KEY,
       {
         key,
-        tag
+        tag,
       },
       target,
       key

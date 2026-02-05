@@ -8,7 +8,7 @@ import {
   Provide,
   Scope,
   ScopeEnum,
-} from '@midwayjs/decorator';
+} from '@midwayjs/core';
 import { ServiceBroker } from 'moleculer';
 import { CoolRpcConfig } from '.';
 import { CoolCoreException, CoolValidateException } from '@cool-midway/core';

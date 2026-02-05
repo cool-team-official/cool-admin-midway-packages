@@ -1,16 +1,11 @@
-import {
-  App,
-  getClassMetadata,
-  listModule,
-  Provide,
-} from "@midwayjs/decorator";
-import * as Events from "events";
-import { Scope, ScopeEnum, IMidwayApplication, Config } from "@midwayjs/core";
-import { COOL_CLS_EVENT_KEY, COOL_EVENT_KEY } from "../decorator/event";
-import * as pm2 from "pm2";
-import * as _ from "lodash";
+import { App, getClassMetadata, listModule, Provide } from '@midwayjs/core';
+import * as Events from 'events';
+import { Scope, ScopeEnum, IMidwayApplication, Config } from '@midwayjs/core';
+import { COOL_CLS_EVENT_KEY, COOL_EVENT_KEY } from '../decorator/event';
+import * as pm2 from 'pm2';
+import * as _ from 'lodash';
 
-export const COOL_EVENT_MESSAGE = "cool:event:message";
+export const COOL_EVENT_MESSAGE = 'cool:event:message';
 
 /**
  * 事件
@@ -21,7 +16,7 @@ export class CoolEventManager extends Events {
   @App()
   app: IMidwayApplication;
 
-  @Config("keys")
+  @Config('keys')
   keys: string;
 
   // 事件数据 某个事件对应的模块对应的方法
@@ -67,15 +62,15 @@ export class CoolEventManager extends Events {
    * @param args 参数
    * @returns
    */
-  async globalEmit(event: string, random: boolean = false, ...args) {
+  async globalEmit(event: string, random = false, ...args) {
     // 如果是本地运行还是转普通模式
-    if (this.app.getEnv() === "local") {
+    if (this.app.getEnv() === 'local') {
       this.emit(event, ...args);
       return;
     }
     pm2.connect(() => {
       pm2.list((err, list) => {
-        const ps = list.map((e) => {
+        const ps = list.map(e => {
           return {
             id: e.pm_id,
             name: e.name,
@@ -84,10 +79,10 @@ export class CoolEventManager extends Events {
         // random 为 true 时随机发给同名称的一个进程
         if (random) {
           // 按名称分组
-          const group = _.groupBy(ps, "name");
+          const group = _.groupBy(ps, 'name');
           const names = Object.keys(group);
           // 遍历名称
-          names.forEach((name) => {
+          names.forEach(name => {
             const pss = group[name];
             // 随机一个
             const index = _.random(0, pss.length - 1);
@@ -96,32 +91,32 @@ export class CoolEventManager extends Events {
             // @ts-ignore
             pm2.sendDataToProcessId(
               {
-                type: "process:msg",
+                type: 'process:msg',
                 data: {
                   type: `${COOL_EVENT_MESSAGE}@${this.keys}`,
                   event,
                   args,
                 },
                 id: ps.id,
-                topic: "cool:event:topic",
+                topic: 'cool:event:topic',
               },
               (err, res) => {}
             );
           });
         } else {
           // 发给所有进程
-          ps.forEach((e) => {
+          ps.forEach(e => {
             // @ts-ignore
             pm2.sendDataToProcessId(
               {
-                type: "process:msg",
+                type: 'process:msg',
                 data: {
                   type: `${COOL_EVENT_MESSAGE}@${this.keys}`,
                   event,
                   args,
                 },
                 id: e.id,
-                topic: "cool:event:topic",
+                topic: 'cool:event:topic',
               },
               (err, res) => {}
             );
@@ -153,7 +148,7 @@ export class CoolEventManager extends Events {
    * 全局事件
    */
   async globalEvent() {
-    process.on("message", async (message: any) => {
+    process.on('message', async (message: any) => {
       const data = message?.data;
       if (!data) return;
       if (data.type != `${COOL_EVENT_MESSAGE}@${this.keys}`) return;

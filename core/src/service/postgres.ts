@@ -1,14 +1,14 @@
-import { Init, Provide, Inject, App, Config } from "@midwayjs/decorator";
-import { CoolValidateException } from "../exception/validate";
-import { ERRINFO, EVENT } from "../constant/global";
-import { Application, Context } from "@midwayjs/koa";
-import { Scope, ScopeEnum } from "@midwayjs/core";
-import { CoolConfig } from "../interface";
-import { TypeORMDataSourceManager } from "@midwayjs/typeorm";
-import { Brackets, In, Repository, SelectQueryBuilder } from "typeorm";
-import { QueryOp } from "../decorator/controller";
-import * as _ from "lodash";
-import { CoolEventManager } from "../event";
+import { Init, Provide, Inject, App, Config } from '@midwayjs/core';
+import { CoolValidateException } from '../exception/validate';
+import { ERRINFO, EVENT } from '../constant/global';
+import { Application, Context } from '@midwayjs/koa';
+import { Scope, ScopeEnum } from '@midwayjs/core';
+import { CoolConfig } from '../interface';
+import { TypeORMDataSourceManager } from '@midwayjs/typeorm';
+import { Brackets, Equal, In, Repository, SelectQueryBuilder } from 'typeorm';
+import { QueryOp } from '../decorator/controller';
+import * as _ from 'lodash';
+import { CoolEventManager } from '../event';
 
 /**
  * 服务基类
@@ -17,7 +17,7 @@ import { CoolEventManager } from "../event";
 @Scope(ScopeEnum.Request, { allowDowngrade: true })
 export abstract class BasePgService {
   // 分页配置
-  @Config("cool")
+  @Config('cool')
   private _coolConfig: CoolConfig;
 
   // 模型
@@ -49,7 +49,7 @@ export abstract class BasePgService {
     this.baseApp = app;
   }
 
-  @Inject("ctx")
+  @Inject('ctx')
   baseCtx: Context;
 
   // 初始化
@@ -74,17 +74,17 @@ export abstract class BasePgService {
           // 将这个? 替换成 $1,$2,$3
           const replaceStr = [];
           for (let j = 0; j < param.length; j++) {
-            replaceStr.push("$" + (this.sqlParams.length + j + 1));
+            replaceStr.push('$' + (this.sqlParams.length + j + 1));
           }
           this.sqlParams = this.sqlParams.concat(...params);
-          sql = sql.replace("?", replaceStr.join(","));
+          sql = sql.replace('?', replaceStr.join(','));
         } else {
-          sql = sql.replace("?", "$" + (this.sqlParams.length + 1));
+          sql = sql.replace('?', '$' + (this.sqlParams.length + 1));
           this.sqlParams.push(param);
         }
       }
     }
-    return rSql ? sql : "";
+    return rSql ? sql : '';
   }
 
   /**
@@ -93,12 +93,12 @@ export abstract class BasePgService {
    */
   getCountSql(sql) {
     sql = sql
-      .replace(new RegExp("LIMIT", "gm"), "limit ")
-      .replace(new RegExp("\n", "gm"), " ");
-    if (sql.includes("limit")) {
-      const sqlArr = sql.split("limit ");
+      .replace(new RegExp('LIMIT', 'gm'), 'limit ')
+      .replace(new RegExp('\n', 'gm'), ' ');
+    if (sql.includes('limit')) {
+      const sqlArr = sql.split('limit ');
       sqlArr.pop();
-      sql = sqlArr.join("limit ");
+      sql = sqlArr.join('limit ');
     }
     return `select count(*) as count from (${sql}) a`;
   }
@@ -110,10 +110,10 @@ export abstract class BasePgService {
   async paramSafetyCheck(params) {
     const lp = params.toLowerCase();
     return !(
-      lp.indexOf("update ") > -1 ||
-      lp.indexOf("select ") > -1 ||
-      lp.indexOf("delete ") > -1 ||
-      lp.indexOf("insert ") > -1
+      lp.indexOf('update ') > -1 ||
+      lp.indexOf('select ') > -1 ||
+      lp.indexOf('delete ') > -1 ||
+      lp.indexOf('insert ') > -1
     );
   }
 
@@ -130,18 +130,18 @@ export abstract class BasePgService {
     }
     let newParams = [];
     // sql没处理过?的情况下
-    if (sql.includes("?")) {
+    if (sql.includes('?')) {
       for (const item of params) {
         // 如果是数组，将这个? 替换成 $1,$2,$3
         if (item instanceof Array) {
           const replaceStr = [];
           for (let i = 0; i < item.length; i++) {
-            replaceStr.push("$" + (newParams.length + i + 1));
+            replaceStr.push('$' + (newParams.length + i + 1));
           }
           newParams.push(...item);
-          sql = sql.replace("?", replaceStr.join(","));
+          sql = sql.replace('?', replaceStr.join(','));
         } else {
-          sql = sql.replace("?", "$" + (newParams.length + 1));
+          sql = sql.replace('?', '$' + (newParams.length + 1));
           newParams.push(item);
         }
       }
@@ -156,7 +156,7 @@ export abstract class BasePgService {
    * 获得ORM管理
    *  @param connectionName 连接名称
    */
-  getOrmManager(connectionName = "default") {
+  getOrmManager(connectionName = 'default') {
     return this.typeORMDataSourceManager.getDataSource(connectionName);
   }
 
@@ -175,8 +175,8 @@ export abstract class BasePgService {
     const {
       size = this._coolConfig.crud.pageSize,
       page = 1,
-      order = "createTime",
-      sort = "desc",
+      order = 'id',
+      sort = 'desc',
       isExport = false,
       maxExportLimit,
     } = query;
@@ -191,7 +191,7 @@ export abstract class BasePgService {
       find.addOrderBy(order, sort.toUpperCase());
     }
     return {
-      list: await dataFind.getMany(),
+      list: await dataFind.getRawMany(),
       pagination: {
         page: parseInt(page),
         size: parseInt(size),
@@ -233,20 +233,20 @@ export abstract class BasePgService {
     const {
       size = this._coolConfig.crud.pageSize,
       page = 1,
-      order = "createTime",
-      sort = "desc",
+      order = 'id',
+      sort = 'desc',
       isExport = false,
       maxExportLimit,
     } = query;
     sql = `SELECT * FROM (${sql}) a `;
     if (order && sort && autoSort) {
       if (!(await this.paramSafetyCheck(order + sort))) {
-        throw new CoolValidateException("非法传参~");
+        throw new CoolValidateException('非法传参~');
       }
       sql += `ORDER BY a."${order}" ${this.checkSort(sort)}`;
     }
     let cutParams = 0;
-    let paramCount = this.countDollarSigns(sql);
+    const paramCount = this.countDollarSigns(sql);
     if (isExport && maxExportLimit > 0) {
       this.sqlParams.push(parseInt(maxExportLimit));
       cutParams = 1;
@@ -283,8 +283,8 @@ export abstract class BasePgService {
    * @returns
    */
   checkSort(sort) {
-    if (!["desc", "asc"].includes(sort.toLowerCase())) {
-      throw new CoolValidateException("sort 非法传参~");
+    if (!['desc', 'asc'].includes(sort.toLowerCase())) {
+      throw new CoolValidateException('sort 非法传参~');
     }
     return sort;
   }
@@ -315,7 +315,7 @@ export abstract class BasePgService {
   async delete(ids: any) {
     if (!this.entity) throw new CoolValidateException(ERRINFO.NOENTITY);
     if (ids instanceof String) {
-      ids = ids.split(",");
+      ids = ids.split(',');
     }
     // 启动软删除发送事件
     if (this._coolConfig.crud?.softDelete) {
@@ -351,35 +351,40 @@ export abstract class BasePgService {
    * 新增|修改
    * @param param 数据
    */
-  async addOrUpdate(param: any | any[], type: "add" | "update" = "add") {
+  async addOrUpdate(param: any | any[], type: 'add' | 'update' = 'add') {
     if (!this.entity) throw new CoolValidateException(ERRINFO.NOENTITY);
     delete param.createTime;
     // 判断是否是批量操作
     if (param instanceof Array) {
-      param.forEach((item) => {
+      param.forEach(item => {
         item.updateTime = new Date();
-        item.createTime = new Date();
+        if (type == 'add') {
+          item.createTime = new Date();
+        }
       });
       await this.entity.save(param);
     } else {
-      const upsert = this._coolConfig.crud?.upsert || "normal";
-      if (type == "update") {
-        if (upsert == "save") {
-          const info = await this.entity.findOneBy({ id: param.id });
+      const upsert = this._coolConfig.crud?.upsert || 'normal';
+      if (type == 'update') {
+        if (upsert == 'save') {
+          const info = await this.entity.findOneBy({ id: Equal(param.id) });
+          if (!info) {
+            throw new CoolValidateException(ERRINFO.NOTFOUND);
+          }
           param = {
             ...info,
             ...param,
           };
         }
         param.updateTime = new Date();
-        upsert == "normal"
+        upsert == 'normal'
           ? await this.entity.update(param.id, param)
           : await this.entity.save(param);
       }
-      if (type == "add") {
+      if (type == 'add') {
         param.createTime = new Date();
         param.updateTime = new Date();
-        upsert == "normal"
+        upsert == 'normal'
           ? await this.entity.insert(param)
           : await this.entity.save(param);
       }
@@ -416,12 +421,12 @@ export abstract class BasePgService {
    * @param option
    */
   async getOptionFind(query, option: QueryOp) {
-    let { order = "createTime", sort = "desc", keyWord = "" } = query;
-    const sqlArr = ["SELECT"];
-    const selects = ["a.*"];
-    const find = this.entity.createQueryBuilder("a");
+    let { order = 'id', sort = 'desc', keyWord = '' } = query;
+    const sqlArr = ['SELECT'];
+    const selects = ['a.*'];
+    const find = this.entity.createQueryBuilder('a');
     if (option) {
-      if (typeof option == "function") {
+      if (typeof option === 'function') {
         // @ts-ignore
         option = await option(this.baseCtx, this.baseApp);
       }
@@ -429,7 +434,7 @@ export abstract class BasePgService {
       if (!_.isEmpty(option.join)) {
         for (const item of option.join) {
           selects.push(`${item.alias}.*`);
-          find[item.type || "leftJoin"](
+          find[item.type || 'leftJoin'](
             item.entity,
             item.alias,
             item.condition
@@ -439,7 +444,7 @@ export abstract class BasePgService {
       // 默认条件
       if (option.where) {
         const wheres =
-          typeof option.where == "function"
+          typeof option.where === 'function'
             ? await option.where(this.baseCtx, this.baseApp)
             : option.where;
         if (!_.isEmpty(wheres)) {
@@ -469,14 +474,14 @@ export abstract class BasePgService {
         }
       }
       // 关键字模糊搜索
-      if (keyWord || keyWord == 0) {
+      if (keyWord || keyWord === 0) {
         keyWord = `%${keyWord}%`;
         find.andWhere(
-          new Brackets((qb) => {
+          new Brackets(qb => {
             const keyWordLikeFields = option.keyWordLikeFields || [];
             for (let i = 0; i < option.keyWordLikeFields?.length || 0; i++) {
               let column = keyWordLikeFields[i];
-              column = column.includes(".") ? column : `a.${column}`;
+              column = column.includes('.') ? column : `a.${column}`;
               const values = {};
               values[`keyWord${i}`] = keyWord;
               qb.orWhere(`${column} like :keyWord${i}`, values);
@@ -487,10 +492,10 @@ export abstract class BasePgService {
       }
       // 筛选字段
       if (!_.isEmpty(option.select)) {
-        sqlArr.push(option.select.join(","));
+        sqlArr.push(option.select.join(','));
         find.select(option.select);
       } else {
-        sqlArr.push(selects.join(","));
+        sqlArr.push(selects.join(','));
       }
       // 字段全匹配
       if (!_.isEmpty(option.fieldEq)) {
@@ -498,8 +503,8 @@ export abstract class BasePgService {
           const c = {};
           let column;
           // 如果key有包含.的情况下操作
-          if (typeof key === "string" && key.includes(".")) {
-            const keys = key.split(".");
+          if (typeof key === 'string' && key.includes('.')) {
+            const keys = key.split('.');
             const lastKey = keys.pop();
             key = { requestParam: lastKey, column: key };
             column = key;
@@ -507,11 +512,11 @@ export abstract class BasePgService {
             column = `a.${key}`;
           }
           // 单表字段无别名的情况下操作
-          if (typeof key === "string") {
+          if (typeof key === 'string') {
             if (query[key] || query[key] == 0) {
               c[key] = query[key];
-              const eq = query[key] instanceof Array ? "in" : "=";
-              if (eq === "in") {
+              const eq = query[key] instanceof Array ? 'in' : '=';
+              if (eq === 'in') {
                 find.andWhere(`${column} ${eq} (:...${key})`, c);
               } else {
                 find.andWhere(`${column} ${eq} :${key}`, c);
@@ -521,8 +526,8 @@ export abstract class BasePgService {
           } else {
             if (query[key.requestParam] || query[key.requestParam] == 0) {
               c[key.column] = query[key.requestParam];
-              const eq = query[key.requestParam] instanceof Array ? "in" : "=";
-              if (eq === "in") {
+              const eq = query[key.requestParam] instanceof Array ? 'in' : '=';
+              if (eq === 'in') {
                 find.andWhere(`${key.column} ${eq} (:${key.column})`, c);
               } else {
                 find.andWhere(`${key.column} ${eq} :${key.column}`, c);
@@ -532,13 +537,47 @@ export abstract class BasePgService {
           }
         }
       }
+      // 字段模糊查询
+      if (!_.isEmpty(option.fieldLike)) {
+        for (let key of option.fieldLike) {
+          const c = {};
+          let column;
+          // 如果key有包含.的情况下操作
+          if (typeof key === 'string' && key.includes('.')) {
+            const keys = key.split('.');
+            const lastKey = keys.pop();
+            key = { requestParam: lastKey, column: key };
+            column = key;
+          } else {
+            column = `a.${key}`;
+          }
+          // 单表字段无别名的情况下操作
+          if (typeof key === 'string') {
+            if (query[key] || query[key] == 0) {
+              c[key] = query[key];
+              find.andWhere(`${column} like :${key}`, {
+                [key]: `%${query[key]}%`,
+              });
+              this.sqlParams.push(`%${query[key]}%`);
+            }
+          } else {
+            if (query[key.requestParam] || query[key.requestParam] == 0) {
+              c[key.column] = query[key.requestParam];
+              find.andWhere(`${key.column} like :${key.column}`, {
+                [key.column]: `%${query[key.requestParam]}%`,
+              });
+              this.sqlParams.push(`%${query[key.requestParam]}%`);
+            }
+          }
+        }
+      }
     } else {
-      sqlArr.push(selects.join(","));
+      sqlArr.push(selects.join(','));
     }
     // 接口请求的排序
     if (sort && order) {
-      const sorts = sort.toUpperCase().split(",");
-      const orders = order.split(",");
+      const sorts = sort.toUpperCase().split(',');
+      const orders = order.split(',');
       if (sorts.length != orders.length) {
         throw new CoolValidateException(ERRINFO.SORTFIELD);
       }
@@ -552,16 +591,16 @@ export abstract class BasePgService {
     if (option?.extend) {
       await option?.extend(find, this.baseCtx, this.baseApp);
     }
-    const sqls = find.getSql().split("FROM");
-    sqlArr.push("FROM");
+    const sqls = find.getSql().split('FROM');
+    sqlArr.push('FROM');
     // 取sqls的最后一个
     sqlArr.push(sqls[sqls.length - 1]);
     sqlArr.forEach((item, index) => {
-      if (item.includes("ORDER BY")) {
+      if (item.includes('ORDER BY')) {
         sqlArr[index] = this.replaceOrderByPrefix(item);
       }
     });
-    return sqlArr.join(" ");
+    return sqlArr.join(' ');
   }
 
   /**
@@ -579,15 +618,15 @@ export abstract class BasePgService {
     // @ts-ignore
     function replaceMatch(match, p1, p2) {
       // 将 p1 中的 "a_" 替换为 "a."
-      const replacedField = p1.replace(/a_([^"]+)/g, "a.$1");
+      const replacedField = p1.replace(/a_([^"]+)/g, 'a.$1');
       // 如果有其他字段，递归调用替换函数
       const replacedRest = p2.replace(/("[^"]+_)/g, (m, p) =>
-        p.replace("a_", "a.")
+        p.replace('a_', 'a.')
       );
       // 组合替换后的字段和其他部分
-      return `ORDER BY ${replacedField.replace(/"/g, "")}${replacedRest.replace(
+      return `ORDER BY ${replacedField.replace(/"/g, '')}${replacedRest.replace(
         /"/g,
-        ""
+        ''
       )}`;
     }
 
@@ -595,7 +634,7 @@ export abstract class BasePgService {
     const replacedOrderBySql = sql.replace(orderByRegex, replaceMatch);
 
     // 移除所有双引号
-    const sqlWithoutQuotes = replacedOrderBySql.replace(/"/g, "");
+    const sqlWithoutQuotes = replacedOrderBySql.replace(/"/g, '');
 
     return sqlWithoutQuotes;
   }
@@ -609,13 +648,13 @@ export abstract class BasePgService {
   protected matchColumn(select: string[] = [], field: string) {
     for (const column of select) {
       // 检查字段是否有别名，考虑 'AS' 关键字的不同大小写形式
-      const aliasPattern = new RegExp(`\\b\\w+\\s+as\\s+${field}\\b`, "i");
+      const aliasPattern = new RegExp(`\\b\\w+\\s+as\\s+${field}\\b`, 'i');
       const aliasMatch = column.match(aliasPattern);
       if (aliasMatch) {
         // 提取别名前的字段和表名
         const fieldPattern = new RegExp(
           `(\\w+)\\.(\\w+)\\s+as\\s+${field}`,
-          "i"
+          'i'
         );
         const fieldMatch = column.match(fieldPattern);
         if (fieldMatch) {
@@ -625,7 +664,7 @@ export abstract class BasePgService {
       }
 
       // 检查字段是否直接在选择列表中
-      const fieldPattern = new RegExp(`\\b(\\w+)\\.${field}\\b`, "i");
+      const fieldPattern = new RegExp(`\\b(\\w+)\\.${field}\\b`, 'i');
       const fieldMatch = column.match(fieldPattern);
       if (fieldMatch) {
         // 如果直接匹配到字段，返回字段所属的表名
@@ -634,6 +673,6 @@ export abstract class BasePgService {
     }
 
     // 如果没有匹配到任何特定的表或别名，返回默认的 'a' 表
-    return "a";
+    return 'a';
   }
 }

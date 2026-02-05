@@ -15,9 +15,12 @@
     "pretty": true,
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "rootDir": "src"
   },
   "exclude": [
+    "*.js",
+    "*.ts",
     "dist",
     "node_modules",
     "test"

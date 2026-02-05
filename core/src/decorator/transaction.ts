@@ -1,10 +1,10 @@
-import { createCustomMethodDecorator } from "@midwayjs/decorator";
+import { createCustomMethodDecorator } from '@midwayjs/core';
 
 type IsolationLevel =
-  | "READ UNCOMMITTED"
-  | "READ COMMITTED"
-  | "REPEATABLE READ"
-  | "SERIALIZABLE";
+  | 'READ UNCOMMITTED'
+  | 'READ COMMITTED'
+  | 'REPEATABLE READ'
+  | 'SERIALIZABLE';
 
 export interface TransactionOptions {
   connectionName?: string;
@@ -12,7 +12,7 @@ export interface TransactionOptions {
 }
 
 // 装饰器内部的唯一 id
-export const COOL_TRANSACTION = "decorator:cool_transaction";
+export const COOL_TRANSACTION = 'decorator:cool_transaction';
 
 export function CoolTransaction(option?: TransactionOptions): MethodDecorator {
   return createCustomMethodDecorator(COOL_TRANSACTION, option);

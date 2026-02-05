@@ -1,4 +1,4 @@
-import { Controller, Inject, Post, Provide } from '@midwayjs/decorator';
+import { Controller, Inject, Post, Provide } from '@midwayjs/core';
 import { BaseController } from '@cool-midway/core';
 import { CoolRpc } from './rpc';
 

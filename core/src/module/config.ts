@@ -1,4 +1,4 @@
-import { IMidwayApplication } from "@midwayjs/core";
+import { IMidwayApplication } from '@midwayjs/core';
 import {
   ALL,
   App,
@@ -7,11 +7,12 @@ import {
   Provide,
   Scope,
   ScopeEnum,
-} from "@midwayjs/decorator";
-import * as fs from "fs";
-import { CoolCoreException } from "../exception/core";
-import { ModuleConfig } from "../interface";
-import * as _ from "lodash";
+} from '@midwayjs/core';
+import * as fs from 'fs';
+import { CoolCoreException } from '../exception/core';
+import { ModuleConfig } from '../interface';
+import * as _ from 'lodash';
+import location from '../util/location';
 
 /**
  * 模块配置
@@ -29,14 +30,15 @@ export class CoolModuleConfig {
 
   @Init()
   async init() {
-    let modules = [];
+    const modules = [];
     // 模块路径
-    const moduleBasePath = `${this.app.getBaseDir()}/modules/`;
+    const moduleBasePath = `${location.getRunPath()}/modules/`;
+
     if (!fs.existsSync(moduleBasePath)) {
       return;
     }
-    if (!this.allConfig["module"]) {
-      this.allConfig["module"] = {};
+    if (!this.allConfig['module']) {
+      this.allConfig['module'] = {};
     }
     // 全局中间件
     const globalMiddlewareArr = [];
@@ -69,7 +71,7 @@ export class CoolModuleConfig {
         }
       }
     }
-    this.modules = _.orderBy(modules, ["order"], ["desc"]).map((e) => {
+    this.modules = _.orderBy(modules, ['order'], ['desc']).map(e => {
       return e.module;
     });
     await this.globalMiddlewareArr(globalMiddlewareArr);
@@ -82,7 +84,7 @@ export class CoolModuleConfig {
    */
   async moduleConfig(module, config) {
     // 追加配置
-    this.allConfig["module"][module] = config;
+    this.allConfig['module'][module] = config;
   }
 
   /**
@@ -90,7 +92,7 @@ export class CoolModuleConfig {
    * @param middleware 中间件
    */
   async globalMiddlewareArr(middlewares: any[]) {
-    middlewares = _.orderBy(middlewares, ["order"], ["desc"]);
+    middlewares = _.orderBy(middlewares, ['order'], ['desc']);
     for (const middleware of middlewares) {
       for (const item of middleware.data) {
         this.app.getMiddleware().insertLast(item);

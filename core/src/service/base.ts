@@ -1,17 +1,17 @@
-import { App, Config, Init, Inject, Provide } from "@midwayjs/decorator";
-import { Scope, ScopeEnum } from "@midwayjs/core";
-import { BaseMysqlService } from "./mysql";
-import { BasePgService } from "./postgres";
-import { CoolValidateException } from "../exception/validate";
-import { ERRINFO } from "../constant/global";
-import { Application, Context } from "@midwayjs/koa";
-import { TypeORMDataSourceManager } from "@midwayjs/typeorm";
-import { Repository, SelectQueryBuilder } from "typeorm";
-import { QueryOp } from "../decorator/controller";
-import * as _ from "lodash";
-import { CoolEventManager } from "../event";
-import { CoolCoreException } from "../exception/core";
-import { BaseSqliteService } from "./sqlite";
+import { App, Config, Init, Inject, Provide } from '@midwayjs/core';
+import { Scope, ScopeEnum } from '@midwayjs/core';
+import { BaseMysqlService } from './mysql';
+import { BasePgService } from './postgres';
+import { CoolValidateException } from '../exception/validate';
+import { ERRINFO } from '../constant/global';
+import { Application, Context } from '@midwayjs/koa';
+import { TypeORMDataSourceManager } from '@midwayjs/typeorm';
+import { Repository } from 'typeorm';
+import { QueryOp } from '../decorator/controller';
+import * as _ from 'lodash';
+import { CoolEventManager } from '../event';
+import { CoolCoreException } from '../exception/core';
+import { BaseSqliteService } from './sqlite';
 
 /**
  * 服务基类
@@ -27,11 +27,12 @@ export abstract class BaseService {
   @Inject()
   basePgService: BasePgService;
 
+  // sqlite的基类
   @Inject()
   baseSqliteService: BaseSqliteService;
 
   // 数据库类型
-  @Config("typeorm.dataSource.default.type")
+  @Config('typeorm.dataSource.default.type')
   ormType;
 
   // 当前服务名称
@@ -48,7 +49,7 @@ export abstract class BaseService {
   @Inject()
   coolEventManager: CoolEventManager;
 
-  @Inject("ctx")
+  @Inject('ctx')
   baseCtx: Context;
 
   @App()
@@ -63,9 +64,25 @@ export abstract class BaseService {
       sqlite: this.baseSqliteService,
     };
     this.service = services[this.ormType];
-    if (!this.service) throw new CoolCoreException("暂不支持当前数据库类型");
+    if (!this.service) throw new CoolCoreException('暂不支持当前数据库类型');
     this.sqlParams = this.service.sqlParams;
     await this.service.init();
+  }
+
+  /**
+   * 获取用户ID
+   * @param type 类型
+   * @returns
+   */
+  /**
+   * 获取用户ID
+   * @param type 类型
+   * @returns
+   */
+  protected getUserId(type: 'admin' | 'app' = 'admin') {
+    return type === 'admin'
+      ? this.baseCtx.admin?.userId
+      : this.baseCtx.user?.id;
   }
 
   // 设置模型
@@ -126,7 +143,7 @@ export abstract class BaseService {
    * 获得ORM管理
    *  @param connectionName 连接名称
    */
-  getOrmManager(connectionName = "default") {
+  getOrmManager(connectionName = 'default') {
     return this.service.getOrmManager(connectionName);
   }
 
@@ -137,11 +154,7 @@ export abstract class BaseService {
    * @param autoSort
    * @param connectionName
    */
-  async entityRenderPage(
-    find: SelectQueryBuilder<any>,
-    query,
-    autoSort = true
-  ) {
+  async entityRenderPage(find: any, query, autoSort = true) {
     return await this.service.entityRenderPage(find, query, autoSort);
   }
 
@@ -152,7 +165,7 @@ export abstract class BaseService {
    * @param autoSort 是否自动排序
    * @param connectionName 连接名称
    */
-  async sqlRenderPage(sql, query, autoSort = true, connectionName?) {
+  async sqlRenderPage(sql, query = {}, autoSort = true, connectionName?) {
     return await this.service.sqlRenderPage(
       sql,
       query,
@@ -177,9 +190,9 @@ export abstract class BaseService {
    */
   async delete(ids: any) {
     this.service.setEntity(this.entity);
-    await this.modifyBefore(ids, "delete");
+    await this.modifyBefore(ids, 'delete');
     await this.service.delete(ids);
-    await this.modifyAfter(ids, "delete");
+    await this.modifyAfter(ids, 'delete');
   }
 
   /**
@@ -201,7 +214,7 @@ export abstract class BaseService {
     if (!this.entity) throw new CoolValidateException(ERRINFO.NOENTITY);
     if (!param.id && !(param instanceof Array))
       throw new CoolValidateException(ERRINFO.NOID);
-    await this.addOrUpdate(param, "update");
+    await this.addOrUpdate(param, 'update');
   }
 
   /**
@@ -211,11 +224,11 @@ export abstract class BaseService {
   async add(param: any | any[]): Promise<Object> {
     if (!this.entity) throw new CoolValidateException(ERRINFO.NOENTITY);
     delete param.id;
-    await this.addOrUpdate(param, "add");
+    await this.addOrUpdate(param, 'add');
     return {
       id:
         param instanceof Array
-          ? param.map((e) => {
+          ? param.map(e => {
               return e.id ? e.id : e._id;
             })
           : param.id
@@ -228,7 +241,7 @@ export abstract class BaseService {
    * 新增|修改
    * @param param 数据
    */
-  async addOrUpdate(param: any | any[], type: "add" | "update" = "add") {
+  async addOrUpdate(param: any | any[], type: 'add' | 'update' = 'add') {
     this.service.setEntity(this.entity);
     await this.modifyBefore(param, type);
     await this.service.addOrUpdate(param, type);
@@ -273,7 +286,7 @@ export abstract class BaseService {
    */
   async modifyAfter(
     data: any,
-    type: "delete" | "update" | "add"
+    type: 'delete' | 'update' | 'add'
   ): Promise<void> {}
 
   /**
@@ -282,6 +295,6 @@ export abstract class BaseService {
    */
   async modifyBefore(
     data: any,
-    type: "delete" | "update" | "add"
+    type: 'delete' | 'update' | 'add'
   ): Promise<void> {}
 }

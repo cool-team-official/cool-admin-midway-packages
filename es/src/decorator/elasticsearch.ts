@@ -3,7 +3,7 @@ import {
   ScopeEnum,
   saveClassMetadata,
   saveModule,
-} from '@midwayjs/decorator';
+} from '@midwayjs/core';
 
 export const COOL_ES_KEY = 'decorator:cool:es';
 

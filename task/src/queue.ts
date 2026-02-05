@@ -9,7 +9,7 @@ import {
   Provide,
   Scope,
   ScopeEnum,
-} from '@midwayjs/decorator';
+} from '@midwayjs/core';
 import { Job, QueueGetters, Queue, Worker } from 'bullmq';
 import { BaseCoolQueue } from './base';
 import { COOL_TASK_KEY } from './decorator/queue';

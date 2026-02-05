@@ -1,4 +1,4 @@
-import * as FsStore from "@cool-midway/cache-manager-fs-hash";
+import * as FsStore from '@cool-midway/cache-manager-fs-hash';
 
 /**
  * cool 基于磁盘的缓存
@@ -10,9 +10,9 @@ class FsCacheStore {
 
   constructor(options = {}) {
     options = {
-      ...options,
-      path: "cache",
+      path: 'cache',
       ttl: -1,
+      ...options,
     };
     this.options = options;
     this.store = FsStore.create(options);

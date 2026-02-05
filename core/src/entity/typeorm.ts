@@ -1,3 +1,3 @@
-import { BaseEntity } from "typeorm";
+import { BaseEntity } from 'typeorm';
 
 export abstract class CoolBaseEntity extends BaseEntity {}

@@ -3,8 +3,8 @@ import {
   ScopeEnum,
   saveClassMetadata,
   saveModule,
-} from '@midwayjs/decorator';
-import { JobsOptions } from 'bullmq';
+} from '@midwayjs/core';
+import { JobsOptions, WorkerOptions } from 'bullmq';
 
 export const COOL_TASK_KEY = 'decorator:cool:task';
 
@@ -12,7 +12,7 @@ export function CoolQueue(
   config = { type: 'comm', queue: {}, worker: {} } as {
     type?: 'comm' | 'getter' | 'noworker' | 'single';
     queue?: JobsOptions;
-    worker?: WorkerOptions;
+    worker?: Omit<WorkerOptions, 'connection' | 'prefix'>;
   }
 ): ClassDecorator {
   return (target: any) => {

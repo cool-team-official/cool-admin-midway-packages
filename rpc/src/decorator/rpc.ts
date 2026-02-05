@@ -3,7 +3,7 @@ import {
   ScopeEnum,
   saveClassMetadata,
   saveModule,
-} from '@midwayjs/decorator';
+} from '@midwayjs/core';
 
 export const MOLECYLER_KEY = 'decorator:cool:rpc';
 

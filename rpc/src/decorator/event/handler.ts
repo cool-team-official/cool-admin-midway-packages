@@ -1,4 +1,4 @@
-import { attachClassMetadata } from '@midwayjs/decorator';
+import { attachClassMetadata } from '@midwayjs/core';
 
 export const COOL_RPC_EVENT_HANDLER_KEY = 'decorator:cool:rpc:event:handler';
 

@@ -1,5 +1,5 @@
 import { ILogger } from '@midwayjs/core';
-import { Catch, Logger } from '@midwayjs/decorator';
+import { Catch, Logger } from '@midwayjs/core';
 import { GlobalConfig } from '../constant/global';
 
 /**

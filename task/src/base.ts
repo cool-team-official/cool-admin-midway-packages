@@ -1,11 +1,4 @@
-import {
-  Job,
-  JobsOptions,
-  Queue,
-  QueueGetters,
-  RepeatOptions,
-  Worker,
-} from 'bullmq';
+import { Job, JobsOptions, Queue, QueueGetters, Worker } from 'bullmq';
 
 /**
  * 队列基类
@@ -16,7 +9,7 @@ export abstract class BaseCoolQueue {
    */
   queue: BaseCoolQueue;
   // 获得者
-  getters: QueueGetters<any, any, any>;
+  getters: QueueGetters;
   // 消费者
   worker: Worker;
   // 队列名
@@ -80,16 +73,12 @@ export abstract class BaseCoolQueue {
     return this.metaQueue.isPaused();
   }
 
-  async getRepeatableJobs(start?: number, end?: number, asc?: boolean) {
-    return this.metaQueue.getRepeatableJobs(start, end, asc);
+  async getJobSchedulers(start?: number, end?: number, asc?: boolean) {
+    return this.metaQueue.getJobSchedulers(start, end, asc);
   }
 
-  async removeRepeatable(repeatOpts: RepeatOptions, jobId?: string) {
-    this.metaQueue.removeRepeatable(this.queueName, repeatOpts, jobId);
-  }
-
-  async removeRepeatableByKey(key: string) {
-    this.metaQueue.removeRepeatableByKey(key);
+  async removeJobScheduler(jobId: string) {
+    this.metaQueue.removeJobScheduler(jobId);
   }
 
   async remove(jobId: string) {

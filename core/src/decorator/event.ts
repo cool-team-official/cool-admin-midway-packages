@@ -2,10 +2,10 @@ import {
   saveClassMetadata,
   saveModule,
   attachClassMetadata,
-} from "@midwayjs/decorator";
-import { Scope, ScopeEnum } from "@midwayjs/core";
+} from '@midwayjs/core';
+import { Scope, ScopeEnum } from '@midwayjs/core';
 
-export const COOL_CLS_EVENT_KEY = "decorator:cool:cls:event";
+export const COOL_CLS_EVENT_KEY = 'decorator:cool:cls:event';
 
 /**
  * 事件配置
@@ -31,7 +31,7 @@ export function CoolEvent(options = {} as CoolEventOptions): ClassDecorator {
   };
 }
 
-export const COOL_EVENT_KEY = "decorator:cool:event";
+export const COOL_EVENT_KEY = 'decorator:cool:event';
 
 /**
  * 事件

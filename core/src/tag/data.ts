@@ -8,7 +8,7 @@ import {
   Scope,
   ScopeEnum,
   WEB_ROUTER_KEY,
-} from '@midwayjs/decorator';
+} from '@midwayjs/core';
 import { COOL_URL_TAG_KEY } from '../decorator/tag';
 import * as _ from 'lodash';
 
@@ -24,10 +24,10 @@ export class CoolUrlTagData {
    * 初始化
    */
   async init() {
-   // 类标记
-   await this.classTag();
-   // 方法标记
-   await this.methodTag();
+    // 类标记
+    await this.classTag();
+    // 方法标记
+    await this.methodTag();
   }
 
   /**
@@ -42,12 +42,14 @@ export class CoolUrlTagData {
         COOL_URL_TAG_KEY,
         controller
       );
-      if(tagOption?.key){
+      if (tagOption?.key) {
         const data: string[] = this.data[tagOption.key] || [];
-        this.data[tagOption.key] = _.uniq(data.concat(
-          (tagOption?.value || []).map(e => {
-            return controllerOption.prefix + '/' + e;
-          }))
+        this.data[tagOption.key] = _.uniq(
+          data.concat(
+            (tagOption?.value || []).map(e => {
+              return controllerOption.prefix + '/' + e;
+            })
+          )
         );
       }
     }
@@ -60,18 +62,21 @@ export class CoolUrlTagData {
     const controllers = listModule(CONTROLLER_KEY);
     for (const controller of controllers) {
       const controllerOption = getClassMetadata(CONTROLLER_KEY, controller);
-       // 方法标记
-       const listPropertyMetas = listPropertyDataFromClass(COOL_METHOD_TAG_KEY, controller);
-       const requestMetas = getClassMetadata(WEB_ROUTER_KEY, controller);
-       for (const propertyMeta of listPropertyMetas) {
-         const _data = this.data[propertyMeta.tag] || [];
-         const requestMeta = _.find(requestMetas, { method: propertyMeta.key }) 
-         if(requestMeta){
-           this.data[propertyMeta.tag] = _.uniq(_data.concat(
-             controllerOption.prefix + requestMeta.path
-           ))
-         }
-       }
+      // 方法标记
+      const listPropertyMetas = listPropertyDataFromClass(
+        COOL_METHOD_TAG_KEY,
+        controller
+      );
+      const requestMetas = getClassMetadata(WEB_ROUTER_KEY, controller);
+      for (const propertyMeta of listPropertyMetas) {
+        const _data = this.data[propertyMeta.tag] || [];
+        const requestMeta = _.find(requestMetas, { method: propertyMeta.key });
+        if (requestMeta && controllerOption) {
+          this.data[propertyMeta.tag] = _.uniq(
+            _data.concat(controllerOption.prefix + requestMeta.path)
+          );
+        }
+      }
     }
   }
 
@@ -82,8 +87,8 @@ export class CoolUrlTagData {
    * @returns
    */
   byKey(key: string, type?: 'app' | 'admin'): string[] {
-    return this.data[key].filter(e => {
-        return type? _.startsWith(e, `/${type}/`): true;
+    return this.data[key]?.filter(e => {
+      return type ? _.startsWith(e, `/${type}/`) : true;
     });
   }
 }

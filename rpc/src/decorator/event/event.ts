@@ -3,7 +3,7 @@ import {
   ScopeEnum,
   saveClassMetadata,
   saveModule,
-} from '@midwayjs/decorator';
+} from '@midwayjs/core';
 
 export const COOL_RPC_EVENT_KEY = 'decorator:cool:rpc:event';
 

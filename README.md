@@ -1,6 +1,7 @@
-# cool-admin-midway-packages
-cool-admin midway 后端核心包
+# 介绍
 
-- 为了不和src代码相互影响，7.0的核心依赖包单独成一个项目
+这是`cool-admin-midway`项目的核心包，用于提供`cool-admin-midway`项目的核心功能。
 
-- 7.0之前的在cool-admin-midway这个项目的packages目录下
+官网：https://cool-js.com
+
+文档地址：https://node.cool-admin.com

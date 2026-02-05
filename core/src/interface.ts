@@ -1,7 +1,7 @@
-import { MiddlewareParamArray } from "@midwayjs/core";
-import { AedesOptions } from "aedes";
+import { MiddlewareParamArray } from '@midwayjs/core';
+import { AedesOptions } from 'aedes';
 // @ts-ignore
-import { PublishPacket } from "packet";
+import { PublishPacket } from 'packet';
 
 /**
  * 模块配置
@@ -26,10 +26,83 @@ export interface CoolConfig {
   initDB?: boolean;
   /** Eps */
   eps?: boolean;
+  /** 开启多租户 */
+  tenant?: {
+    /** 是否开启 */
+    enable: boolean;
+    // 需要过滤多租户的url
+    urls: string[];
+  };
+  /** 开启多语言 */
+  i18n?: {
+    /** 是否开启 */
+    enable: boolean;
+    /** 语言 */
+    languages: Array<
+      | 'zh-cn'
+      | 'en'
+      | 'az'
+      | 'de'
+      | 'pt'
+      | 'es'
+      | 'da'
+      | 'fr'
+      | 'nb-NO'
+      | 'zh-tw'
+      | 'it'
+      | 'ko'
+      | 'ja'
+      | 'nl'
+      | 'vi'
+      | 'ru'
+      | 'tr'
+      | 'pt-br'
+      | 'fa'
+      | 'th'
+      | 'id'
+      | 'bg'
+      | 'pa'
+      | 'pl'
+      | 'fi'
+      | 'sv'
+      | 'el'
+      | 'sk'
+      | 'ca'
+      | 'cs'
+      | 'uk'
+      | 'tk'
+      | 'ta'
+      | 'lv'
+      | 'af'
+      | 'et'
+      | 'sl'
+      | 'ar'
+      | 'he'
+      | 'lt'
+      | 'mn'
+      | 'kk'
+      | 'hu'
+      | 'ro'
+      | 'ku'
+      | 'ckb'
+      | 'ug-cn'
+      | 'km'
+      | 'sr'
+      | 'eu'
+      | 'ky'
+      | 'hy-am'
+      | 'hr'
+      | 'eo'
+      | 'bn'
+      | 'ms'
+    >;
+    /** 翻译服务 */
+    serviceUrl?: string;
+  };
   /** 是否自动导入模块菜单 */
   initMenu?: boolean;
   /** 判断是否初始化的方式 */
-  initJudge: "file" | "db";
+  initJudge: 'file' | 'db';
   // 实体配置
   //   entity?: {
   //     primaryType: "uuid" | "increment" | "rowid" | "identity";
@@ -41,7 +114,7 @@ export interface CoolConfig {
     /** 分页查询每页条数 */
     pageSize: number;
     /** 插入方式 */
-    upsert: "normal" | "save";
+    upsert: 'normal' | 'save';
     // 多租户
     // tenant: boolean;
   };
@@ -101,22 +174,22 @@ export interface RedisConfig {
 // 模式
 export enum MODETYPE {
   /** 本地 */
-  LOCAL = "local",
+  LOCAL = 'local',
   /** 云存储 */
-  CLOUD = "cloud",
+  CLOUD = 'cloud',
   /** 其他 */
-  OTHER = "other",
+  OTHER = 'other',
 }
 
 export enum CLOUDTYPE {
   /** 阿里云存储 */
-  OSS = "oss",
+  OSS = 'oss',
   /** 腾讯云存储 */
-  COS = "cos",
+  COS = 'cos',
   /** 七牛云存储 */
-  QINIU = "qiniu",
+  QINIU = 'qiniu',
   /** AWS S3 */
-  AWS = "aws",
+  AWS = 'aws',
 }
 
 /**
@@ -270,7 +343,7 @@ export interface CoolAliPayConfig {
    */
   privateKey: string;
   /** 签名类型 */
-  signType?: "RSA2" | "RSA";
+  signType?: 'RSA2' | 'RSA';
   /** 支付宝公钥（需要对返回值做验签时候必填） */
   alipayPublicKey?: string;
   /** 网关 */
@@ -280,12 +353,12 @@ export interface CoolAliPayConfig {
   /** 是否把网关返回的下划线 key 转换为驼峰写法 */
   camelcase?: boolean;
   /** 编码（只支持 utf-8） */
-  charset?: "utf-8";
+  charset?: 'utf-8';
   /** api版本 */
-  version?: "1.0";
+  version?: '1.0';
   urllib?: any;
   /** 指定private key类型, 默认： PKCS1, PKCS8: PRIVATE KEY, PKCS1: RSA PRIVATE KEY */
-  keyType?: "PKCS1" | "PKCS8";
+  keyType?: 'PKCS1' | 'PKCS8';
   /** 应用公钥证书文件路径 */
   appCertPath?: string;
   /** 应用公钥证书文件内容 */
