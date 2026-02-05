@@ -147,6 +147,32 @@ class ColumnMetadata {
             this.isUpdate = !options.args.options.readonly;
         if (options.args.options.comment)
             this.comment = options.args.options.comment;
+
+        // If a `dict` option is provided, expand it into a readable mapping
+        // and append it to the column comment so DDL contains the full mapping.
+        // Example: comment: '状态', dict: ['待审核','已通过'] => '状态 0:待审核 1:已通过'
+        try {
+            const dictOpt = options.args.options.dict || this.dict;
+            if (dictOpt) {
+                let mapping = "";
+                if (Array.isArray(dictOpt)) {
+                    mapping = dictOpt.map((v, i) => `${i}:${v}`).join(" ");
+                }
+                else if (typeof dictOpt === "object") {
+                    // support object mapping {0: '待审核', 1: '已通过'}
+                    mapping = Object.keys(dictOpt).map((k) => `${k}:${dictOpt[k]}`).join(" ");
+                }
+                if (mapping) {
+                    if (this.comment)
+                        this.comment = `${this.comment} ${mapping}`;
+                    else
+                        this.comment = mapping;
+                }
+            }
+        }
+        catch (e) {
+            // swallow any error to avoid breaking metadata construction
+        }
         if (options.args.options.default !== undefined)
             this.default = options.args.options.default;
         if (options.args.options.onUpdate)
