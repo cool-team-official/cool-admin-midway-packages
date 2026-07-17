@@ -1,6 +1,6 @@
 export { CoolRpcConfiguration as Configuration } from './configuration';
 
-export * from './test';
+// export * from './test';
 export * from './rpc';
 export * from './decorator/rpc';
 export * from './decorator/event/event';

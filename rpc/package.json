@@ -1,6 +1,6 @@
 {
   "name": "@cool-midway/rpc",
-  "version": "8.0.1",
+  "version": "8.0.2",
   "description": "cool-admin midway rpc",
   "main": "dist/index.js",
   "typings": "index.d.ts",
