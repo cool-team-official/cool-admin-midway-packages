@@ -12,7 +12,7 @@ export interface ColumnOptions extends ColumnCommonOptions {
     /**
      * cool dict key
      */
-    dict?: string | string[];
+    dict?: string | string[] | object;
     /**
      * Column name in the database.
      */
