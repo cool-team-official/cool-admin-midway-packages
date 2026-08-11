@@ -456,7 +456,11 @@ export abstract class BaseSqliteService {
               (item.length == 3 && (item[2] || item[2] === 0))
             ) {
               for (const key in item[1]) {
-                this.sqlParams.push(item[1][key]);
+                if (item[1][key] instanceof Array) {
+                  this.sqlParams.push(...item[1][key]);
+                } else {
+                  this.sqlParams.push(item[1][key]);
+                }
               }
               find.andWhere(item[0], item[1]);
             }
@@ -510,23 +514,25 @@ export abstract class BaseSqliteService {
           // 单表字段无别名的情况下操作
           if (typeof key === 'string') {
             if (query[key] || query[key] == 0) {
-              c[key] = query[key];
+              const safeParamKey = `param${Math.random().toString(36).slice(2, 9)}`;
+              c[safeParamKey] = query[key];
               const eq = query[key] instanceof Array ? 'in' : '=';
               if (eq === 'in') {
-                find.andWhere(`${key} ${eq} (:${key})`, c);
+                find.andWhere(`${key} ${eq} (:${safeParamKey})`, c);
               } else {
-                find.andWhere(`${key} ${eq} :${key}`, c);
+                find.andWhere(`${key} ${eq} :${safeParamKey}`, c);
               }
               //   this.sqlParams.push(query[key]);
             }
           } else {
             if (query[key.requestParam] || query[key.requestParam] == 0) {
-              c[key.column] = query[key.requestParam];
+              const safeParamKey = `param${Math.random().toString(36).slice(2, 9)}`;
+              c[safeParamKey] = query[key.requestParam];
               const eq = query[key.requestParam] instanceof Array ? 'in' : '=';
               if (eq === 'in') {
-                find.andWhere(`${key.column} ${eq} (:${key.column})`, c);
+                find.andWhere(`${key.column} ${eq} (:${safeParamKey})`, c);
               } else {
-                find.andWhere(`${key.column} ${eq} :${key.column}`, c);
+                find.andWhere(`${key.column} ${eq} :${safeParamKey}`, c);
               }
             }
           }
@@ -544,15 +550,17 @@ export abstract class BaseSqliteService {
           // 单表字段无别名的情况下操作
           if (typeof key === 'string') {
             if (query[key] || query[key] == 0) {
-              find.andWhere(`${key} like :${key}`, {
-                [key]: `%${query[key]}%`,
+              const safeParamKey = `param${Math.random().toString(36).slice(2, 9)}`;
+              find.andWhere(`${key} like :${safeParamKey}`, {
+                [safeParamKey]: `%${query[key]}%`,
               });
               this.sqlParams.push(`%${query[key]}%`);
             }
           } else {
             if (query[key.requestParam] || query[key.requestParam] == 0) {
-              find.andWhere(`${key.column} like :${key.column}`, {
-                [key.column]: `%${query[key.requestParam]}%`,
+              const safeParamKey = `param${Math.random().toString(36).slice(2, 9)}`;
+              find.andWhere(`${key.column} like :${safeParamKey}`, {
+                [safeParamKey]: `%${query[key.requestParam]}%`,
               });
               this.sqlParams.push(`%${query[key.requestParam]}%`);
             }
